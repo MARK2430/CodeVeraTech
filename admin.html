@@ -1,0 +1,5069 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CodeVera Admin Dashboard</title>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+<style>
+*{
+    box-sizing:border-box;
+    margin:0;
+    padding:0;
+}
+
+body{
+    font-family:Arial,Helvetica,sans-serif;
+    background:#f5f7fb;
+    color:#1f2937;
+}
+
+button,
+input,
+textarea,
+select{
+    font:inherit;
+}
+
+button{
+    cursor:pointer;
+}
+
+.sidebar{
+    position:fixed;
+    left:0;
+    top:0;
+    width:250px;
+    height:100vh;
+    background:#111827;
+    color:white;
+    padding:20px 14px;
+    z-index:1000;
+    overflow-y:auto;
+}
+
+.logo{
+    font-size:24px;
+    font-weight:800;
+    padding:10px 14px 25px;
+}
+
+.logo span{
+    color:#38bdf8;
+}
+
+.nav-btn{
+    width:100%;
+    display:block;
+    border:0;
+    background:transparent;
+    color:#d1d5db;
+    text-align:left;
+    padding:13px 14px;
+    border-radius:9px;
+    margin-bottom:5px;
+}
+
+.nav-btn:hover,
+.nav-btn.active{
+    background:#1e40af;
+    color:white;
+}
+
+.logout-btn{
+    margin-top:25px;
+    color:#fca5a5;
+}
+
+.main{
+    margin-left:250px;
+    min-height:100vh;
+}
+
+.topbar{
+    height:70px;
+    background:white;
+    border-bottom:1px solid #e5e7eb;
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    padding:0 28px;
+    position:sticky;
+    top:0;
+    z-index:900;
+}
+
+.topbar h1{
+    font-size:22px;
+}
+
+.admin-info{
+    font-size:14px;
+    color:#6b7280;
+}
+
+.content{
+    padding:28px;
+}
+
+.section{
+    display:none;
+}
+
+.section.active{
+    display:block;
+}
+
+.page-header{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    gap:15px;
+    margin-bottom:22px;
+    flex-wrap:wrap;
+}
+
+.page-header h2{
+    font-size:25px;
+}
+
+.page-header p{
+    color:#6b7280;
+    margin-top:5px;
+}
+
+.stats{
+    display:grid;
+    grid-template-columns:repeat(5,1fr);
+    gap:18px;
+    margin-bottom:25px;
+}
+
+.stat-card{
+    background:white;
+    border-radius:14px;
+    padding:20px;
+    border:1px solid #e5e7eb;
+}
+
+.stat-card .label{
+    color:#6b7280;
+    font-size:14px;
+}
+
+.stat-card .number{
+    font-size:30px;
+    font-weight:800;
+    margin-top:8px;
+}
+
+.card{
+    background:white;
+    border:1px solid #e5e7eb;
+    border-radius:14px;
+    padding:20px;
+    margin-bottom:22px;
+}
+
+.card h3{
+    margin-bottom:15px;
+}
+
+.grid-2{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:20px;
+}
+
+.toolbar{
+    display:flex;
+    gap:10px;
+    flex-wrap:wrap;
+    margin-bottom:18px;
+}
+
+.toolbar input,
+.toolbar select{
+    min-width:220px;
+}
+
+input,
+textarea,
+select{
+    width:100%;
+    border:1px solid #d1d5db;
+    border-radius:8px;
+    padding:11px 12px;
+    outline:none;
+    background:white;
+}
+
+input:focus,
+textarea:focus,
+select:focus{
+    border-color:#2563eb;
+}
+
+textarea{
+    min-height:120px;
+    resize:vertical;
+}
+
+.form-grid{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:16px;
+}
+
+.form-group{
+    margin-bottom:15px;
+}
+
+.form-group.full{
+    grid-column:1/-1;
+}
+
+.form-group label{
+    display:block;
+    font-size:14px;
+    font-weight:700;
+    margin-bottom:7px;
+}
+
+.checkbox{
+    display:flex;
+    align-items:center;
+    gap:8px;
+}
+
+.checkbox input{
+    width:auto;
+}
+
+.btn{
+    border:0;
+    border-radius:8px;
+    padding:10px 15px;
+    font-weight:700;
+}
+
+.btn-primary{
+    background:#2563eb;
+    color:white;
+}
+
+.btn-primary:hover{
+    background:#1d4ed8;
+}
+
+.btn-success{
+    background:#16a34a;
+    color:white;
+}
+
+.btn-danger{
+    background:#dc2626;
+    color:white;
+}
+
+.btn-secondary{
+    background:#e5e7eb;
+    color:#111827;
+}
+
+.btn-warning{
+    background:#f59e0b;
+    color:white;
+}
+
+.table-wrap{
+    overflow-x:auto;
+}
+
+table{
+    width:100%;
+    border-collapse:collapse;
+    min-width:800px;
+}
+
+th,
+td{
+    padding:13px 12px;
+    border-bottom:1px solid #e5e7eb;
+    text-align:left;
+    vertical-align:top;
+}
+
+th{
+    background:#f9fafb;
+    font-size:13px;
+}
+
+td{
+    font-size:14px;
+}
+
+.actions{
+    display:flex;
+    gap:6px;
+    flex-wrap:wrap;
+}
+
+.actions .btn{
+    padding:7px 10px;
+    font-size:12px;
+}
+
+.badge{
+    display:inline-block;
+    padding:5px 9px;
+    border-radius:999px;
+    font-size:12px;
+    font-weight:700;
+}
+
+.badge-green{
+    background:#dcfce7;
+    color:#166534;
+}
+
+.badge-yellow{
+    background:#fef3c7;
+    color:#92400e;
+}
+
+.badge-red{
+    background:#fee2e2;
+    color:#991b1b;
+}
+
+.badge-blue{
+    background:#dbeafe;
+    color:#1e40af;
+}
+
+.badge-gray{
+    background:#e5e7eb;
+    color:#374151;
+}
+
+.empty,
+.loading{
+    text-align:center;
+    padding:35px;
+    color:#6b7280;
+}
+
+.form-message{
+    margin-top:12px;
+    padding:10px;
+    border-radius:8px;
+    display:none;
+}
+
+.form-message.success{
+    display:block;
+    background:#dcfce7;
+    color:#166534;
+}
+
+.form-message.error{
+    display:block;
+    background:#fee2e2;
+    color:#991b1b;
+}
+
+.preview-image{
+    width:55px;
+    height:45px;
+    object-fit:cover;
+    border-radius:7px;
+    background:#e5e7eb;
+}
+
+.modal{
+    position:fixed;
+    inset:0;
+    background:rgba(0,0,0,.55);
+    display:none;
+    align-items:center;
+    justify-content:center;
+    padding:20px;
+    z-index:2000;
+}
+
+.modal.show{
+    display:flex;
+}
+
+.modal-box{
+    width:min(700px,100%);
+    max-height:90vh;
+    overflow-y:auto;
+    background:white;
+    border-radius:14px;
+    padding:24px;
+}
+
+.modal-header{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    margin-bottom:18px;
+}
+
+.close-modal{
+    border:0;
+    background:#e5e7eb;
+    width:35px;
+    height:35px;
+    border-radius:50%;
+    font-size:20px;
+}
+
+.detail-row{
+    margin-bottom:15px;
+}
+
+.detail-row strong{
+    display:block;
+    margin-bottom:5px;
+}
+
+.mobile-menu{
+    display:none;
+    border:0;
+    background:#111827;
+    color:white;
+    padding:8px 12px;
+    border-radius:7px;
+}
+
+@media(max-width:1100px){
+    .stats{
+        grid-template-columns:repeat(3,1fr);
+    }
+}
+
+@media(max-width:800px){
+    .sidebar{
+        transform:translateX(-100%);
+        transition:.25s;
+    }
+
+    .sidebar.open{
+        transform:translateX(0);
+    }
+
+    .main{
+        margin-left:0;
+    }
+
+    .mobile-menu{
+        display:block;
+    }
+
+    .topbar{
+        padding:0 15px;
+    }
+
+    .content{
+        padding:18px;
+    }
+
+    .stats{
+        grid-template-columns:1fr 1fr;
+    }
+
+    .grid-2,
+    .form-grid{
+        grid-template-columns:1fr;
+    }
+}
+
+@media(max-width:500px){
+    .stats{
+        grid-template-columns:1fr;
+    }
+
+    .admin-info{
+        display:none;
+    }
+}
+</style>
+</head>
+
+<body>
+
+<!-- SIDEBAR -->
+<aside class="sidebar" id="sidebar">
+
+    <div class="logo">
+        CodeVera<span>Tech</span>
+    </div>
+
+    <button class="nav-btn active" onclick="showSection('overview',this)">
+        📊 Overview
+    </button>
+
+    <button class="nav-btn" onclick="showSection('messages',this)">
+        💬 Messages
+    </button>
+
+    <button class="nav-btn" onclick="showSection('courses',this)">
+        🎓 Courses
+    </button>
+
+    <button class="nav-btn" onclick="showSection('registrations',this)">
+        📝 Registrations
+    </button>
+
+    <button class="nav-btn" onclick="showSection('services',this)">
+        🛠️ Services
+    </button>
+
+    <button class="nav-btn" onclick="showSection('projects',this)">
+        💻 Projects
+    </button>
+
+    <button class="nav-btn" onclick="showSection('news',this)">
+        📰 News
+    </button>
+
+    <button class="nav-btn logout-btn" onclick="logout()">
+        🚪 Logout
+    </button>
+
+</aside>
+
+
+<!-- MAIN -->
+<main class="main">
+
+    <header class="topbar">
+
+        <button class="mobile-menu" onclick="toggleSidebar()">
+            ☰
+        </button>
+
+        <h1 id="page-title">Dashboard</h1>
+
+        <div class="admin-info" id="admin-email">
+            Checking admin...
+        </div>
+
+    </header>
+
+
+    <div class="content">
+
+
+        <!-- ========================= -->
+        <!-- OVERVIEW -->
+        <!-- ========================= -->
+
+        <section id="overview" class="section active">
+
+            <div class="page-header">
+                <div>
+                    <h2>Dashboard Overview</h2>
+                    <p>Manage your CodeVera website from one place.</p>
+                </div>
+            </div>
+
+            <div class="stats">
+
+                <div class="stat-card">
+                    <div class="label">Messages</div>
+                    <div class="number" id="message-count">0</div>
+                </div>
+
+                <div class="stat-card">
+                    <div class="label">Courses</div>
+                    <div class="number" id="course-count">0</div>
+                </div>
+
+                <div class="stat-card">
+                    <div class="label">Services</div>
+                    <div class="number" id="service-count">0</div>
+                </div>
+
+                <div class="stat-card">
+                    <div class="label">Projects</div>
+                    <div class="number" id="project-count">0</div>
+                </div>
+
+                <div class="stat-card">
+                    <div class="label">Registrations</div>
+                    <div class="number" id="registration-count">0</div>
+                </div>
+
+            </div>
+
+
+            <div class="grid-2">
+
+                <div class="card">
+                    <h3>Recent Registrations</h3>
+
+                    <div class="table-wrap">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Name</th>
+                                    <th>Course</th>
+                                    <th>Status</th>
+                                </tr>
+                            </thead>
+
+                            <tbody id="recent-registrations">
+                                <tr>
+                                    <td colspan="3" class="loading">
+                                        Loading...
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+
+                <div class="card">
+                    <h3>Recent Messages</h3>
+
+                    <div class="table-wrap">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Name</th>
+                                    <th>Subject</th>
+                                    <th>Date</th>
+                                </tr>
+                            </thead>
+
+                            <tbody id="recent-messages">
+                                <tr>
+                                    <td colspan="3" class="loading">
+                                        Loading...
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+            </div>
+
+        </section>
+
+
+        <!-- ========================= -->
+        <!-- MESSAGES -->
+        <!-- ========================= -->
+
+        <section id="messages" class="section">
+
+            <div class="page-header">
+                <div>
+                    <h2>Messages</h2>
+                    <p>Messages submitted through your website.</p>
+                </div>
+
+                <button class="btn btn-secondary" onclick="loadMessages()">
+                    🔄 Refresh
+                </button>
+            </div>
+
+            <div class="card">
+
+                <div class="toolbar">
+
+                    <input
+                        type="text"
+                        id="message-search"
+                        placeholder="Search messages..."
+                        oninput="filterMessages()"
+                    >
+
+                    <select id="message-service-filter"
+                            onchange="filterMessages()">
+                        <option value="">All Services</option>
+                    </select>
+
+                </div>
+
+                <div class="table-wrap">
+
+                    <table>
+
+                        <thead>
+                            <tr>
+                                <th>Name</th>
+                                <th>Email</th>
+                                <th>Phone</th>
+                                <th>Organization</th>
+                                <th>Subject</th>
+                                <th>Service</th>
+                                <th>Date</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+
+                        <tbody id="messages-table">
+                            <tr>
+                                <td colspan="8" class="loading">
+                                    Loading messages...
+                                </td>
+                            </tr>
+                        </tbody>
+
+                    </table>
+
+                </div>
+
+            </div>
+
+        </section>
+
+
+        <!-- ========================= -->
+        <!-- COURSES -->
+        <!-- ========================= -->
+
+        <section id="courses" class="section">
+
+            <div class="page-header">
+
+                <div>
+                    <h2>Courses</h2>
+                    <p>Manage CodeVera training programs.</p>
+                </div>
+
+                <button class="btn btn-primary"
+                        onclick="openCourseForm()">
+                    + Add Course
+                </button>
+
+            </div>
+
+
+            <div class="card">
+
+                <div class="toolbar">
+
+                    <input
+                        type="text"
+                        id="course-search"
+                        placeholder="Search courses..."
+                        oninput="filterCourses()"
+                    >
+
+                    <button class="btn btn-secondary"
+                            onclick="loadCourses()">
+                        🔄 Refresh
+                    </button>
+
+                </div>
+
+                <div class="table-wrap">
+
+                    <table>
+
+                        <thead>
+                            <tr>
+                                <th>Image</th>
+                                <th>Title</th>
+                                <th>Category</th>
+                                <th>Duration</th>
+                                <th>Price</th>
+                                <th>Status</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+
+                        <tbody id="courses-table">
+                            <tr>
+                                <td colspan="7" class="loading">
+                                    Loading courses...
+                                </td>
+                            </tr>
+                        </tbody>
+
+                    </table>
+
+                </div>
+
+            </div>
+
+
+            <div class="card" id="course-form-card" style="display:none;">
+
+                <h3 id="course-form-title">
+                    Add Course
+                </h3>
+
+                <form id="course-form">
+
+                    <input type="hidden" id="course-id">
+
+                    <div class="form-grid">
+
+                        <div class="form-group">
+                            <label>Course Title *</label>
+                            <input id="course-title" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label>Category *</label>
+                            <input id="course-category" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label>Duration</label>
+                            <input id="course-duration"
+                                   placeholder="e.g. 4 weeks">
+                        </div>
+
+                        <div class="form-group">
+                            <label>Price</label>
+                            <input id="course-price"
+                                   placeholder="e.g. Le 500">
+                        </div>
+
+                        <div class="form-group full">
+                            <label>Image URL</label>
+                            <input id="course-image"
+                                   placeholder="https://...">
+                        </div>
+
+                        <div class="form-group full">
+                            <label>Description</label>
+                            <textarea id="course-description"></textarea>
+                        </div>
+
+                    </div>
+
+                    <button class="btn btn-primary"
+                            type="submit">
+                        Save Course
+                    </button>
+
+                    <button class="btn btn-secondary"
+                            type="button"
+                            onclick="closeCourseForm()">
+                        Cancel
+                    </button>
+
+                    <div id="course-form-message"
+                         class="form-message"></div>
+
+                </form>
+
+            </div>
+
+        </section>
+
+
+        <!-- ========================= -->
+        <!-- REGISTRATIONS -->
+        <!-- ========================= -->
+
+        <section id="registrations" class="section">
+
+            <div class="page-header">
+
+                <div>
+                    <h2>Course Registrations</h2>
+                    <p>Manage students registered for your courses.</p>
+                </div>
+
+                <button class="btn btn-secondary"
+                        onclick="loadRegistrations()">
+                    🔄 Refresh
+                </button>
+
+            </div>
+
+
+            <div class="stats">
+
+                <div class="stat-card">
+                    <div class="label">Total</div>
+                    <div class="number" id="reg-total">0</div>
+                </div>
+
+                <div class="stat-card">
+                    <div class="label">Pending</div>
+                    <div class="number" id="reg-pending">0</div>
+                </div>
+
+                <div class="stat-card">
+                    <div class="label">Approved</div>
+                    <div class="number" id="reg-approved">0</div>
+                </div>
+
+                <div class="stat-card">
+                    <div class="label">Completed</div>
+                    <div class="number" id="reg-completed">0</div>
+                </div>
+
+            </div>
+
+
+            <div class="card">
+
+                <div class="toolbar">
+
+                    <input
+                        id="registration-search"
+                        placeholder="Search student..."
+                        oninput="filterRegistrations()"
+                    >
+
+                    <select id="registration-filter"
+                            onchange="filterRegistrations()">
+
+                        <option value="">All Statuses</option>
+                        <option value="pending">Pending</option>
+                        <option value="approved">Approved</option>
+                        <option value="completed">Completed</option>
+                        <option value="cancelled">Cancelled</option>
+
+                    </select>
+
+                </div>
+
+
+                <div class="table-wrap">
+
+                    <table>
+
+                        <thead>
+                            <tr>
+                                <th>Name</th>
+                                <th>Email</th>
+                                <th>Phone</th>
+                                <th>Course</th>
+                                <th>Status</th>
+                                <th>Registered</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+
+                        <tbody id="registrations-table">
+                            <tr>
+                                <td colspan="7" class="loading">
+                                    Loading registrations...
+                                </td>
+                            </tr>
+                        </tbody>
+
+                    </table>
+
+                </div>
+
+            </div>
+
+        </section>
+
+
+        <!-- ========================= -->
+        <!-- SERVICES -->
+        <!-- ========================= -->
+
+        <section id="services" class="section">
+
+            <div class="page-header">
+
+                <div>
+                    <h2>Services</h2>
+                    <p>Manage the services displayed on CodeVera.</p>
+                </div>
+
+                <button class="btn btn-primary"
+                        onclick="openServiceForm()">
+                    + Add Service
+                </button>
+
+            </div>
+
+
+            <div class="card">
+
+                <div class="toolbar">
+
+                    <input
+                        id="service-search"
+                        placeholder="Search services..."
+                        oninput="filterServices()"
+                    >
+
+                    <button class="btn btn-secondary"
+                            onclick="loadServices()">
+                        🔄 Refresh
+                    </button>
+
+                </div>
+
+
+                <div class="table-wrap">
+
+                    <table>
+
+                        <thead>
+                            <tr>
+                                <th>Icon</th>
+                                <th>Image</th>
+                                <th>Title</th>
+                                <th>Slug</th>
+                                <th>Description</th>
+                                <th>Status</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+
+                        <tbody id="services-table">
+                            <tr>
+                                <td colspan="7" class="loading">
+                                    Loading services...
+                                </td>
+                            </tr>
+                        </tbody>
+
+                    </table>
+
+                </div>
+
+            </div>
+
+
+            <div class="card"
+                 id="service-form-card"
+                 style="display:none;">
+
+                <h3 id="service-form-title">
+                    Add Service
+                </h3>
+
+                <form id="service-form">
+
+                    <input type="hidden" id="service-id">
+
+                    <div class="form-grid">
+
+                        <div class="form-group">
+                            <label>Service Title *</label>
+                            <input id="service-title" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label>Slug</label>
+                            <input id="service-slug"
+                                   placeholder="Automatically generated">
+                        </div>
+
+                        <div class="form-group">
+                            <label>Icon</label>
+                            <input id="service-icon"
+                                   placeholder="e.g. 💻 or fa-code">
+                        </div>
+
+                        <div class="form-group">
+                            <label>Image URL</label>
+                            <input id="service-image"
+                                   placeholder="https://...">
+                        </div>
+
+                        <div class="form-group full">
+                            <label>Description</label>
+                            <textarea id="service-description"></textarea>
+                        </div>
+
+                        <div class="form-group full">
+                            <label class="checkbox">
+                                <input type="checkbox"
+                                       id="service-active"
+                                       checked>
+                                Active Service
+                            </label>
+                        </div>
+
+                    </div>
+
+                    <button class="btn btn-primary"
+                            type="submit">
+                        Save Service
+                    </button>
+
+                    <button class="btn btn-secondary"
+                            type="button"
+                            onclick="closeServiceForm()">
+                        Cancel
+                    </button>
+
+                    <div id="service-form-message"
+                         class="form-message"></div>
+
+                </form>
+
+            </div>
+
+        </section>
+
+
+        <!-- ========================= -->
+        <!-- PROJECTS -->
+        <!-- ========================= -->
+
+        <section id="projects" class="section">
+
+            <div class="page-header">
+
+                <div>
+                    <h2>Projects</h2>
+                    <p>Manage CodeVera portfolio projects.</p>
+                </div>
+
+                <button class="btn btn-primary"
+                        onclick="openProjectForm()">
+                    + Add Project
+                </button>
+
+            </div>
+
+
+            <div class="card">
+
+                <div class="toolbar">
+
+                    <input
+                        id="project-search"
+                        placeholder="Search projects..."
+                        oninput="filterProjects()"
+                    >
+
+                    <button class="btn btn-secondary"
+                            onclick="loadProjects()">
+                        🔄 Refresh
+                    </button>
+
+                </div>
+
+
+                <div class="table-wrap">
+
+                    <table>
+
+                        <thead>
+                            <tr>
+                                <th>Image</th>
+                                <th>Title</th>
+                                <th>Category</th>
+                                <th>Client</th>
+                                <th>Status</th>
+                                <th>Featured</th>
+                                <th>Published</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+
+                        <tbody id="projects-table">
+                            <tr>
+                                <td colspan="8" class="loading">
+                                    Loading projects...
+                                </td>
+                            </tr>
+                        </tbody>
+
+                    </table>
+
+                </div>
+
+            </div>
+
+
+            <div class="card"
+                 id="project-form-card"
+                 style="display:none;">
+
+                <h3 id="project-form-title">
+                    Add Project
+                </h3>
+
+                <form id="project-form">
+
+                    <input type="hidden" id="project-id">
+
+                    <div class="form-grid">
+
+                        <div class="form-group">
+                            <label>Project Title *</label>
+                            <input id="project-title" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label>Slug</label>
+                            <input id="project-slug"
+                                   placeholder="Automatically generated">
+                        </div>
+
+                        <div class="form-group">
+                            <label>Client Name</label>
+                            <input id="project-client">
+                        </div>
+
+                        <div class="form-group">
+                            <label>Category</label>
+                            <input id="project-category">
+                        </div>
+
+                        <div class="form-group">
+                            <label>Status</label>
+                            <input id="project-status"
+                                   placeholder="e.g. Completed">
+                        </div>
+
+                        <div class="form-group">
+                            <label>Image URL</label>
+                            <input id="project-image"
+                                   placeholder="https://...">
+                        </div>
+
+                        <div class="form-group">
+                            <label>Project URL</label>
+                            <input id="project-url"
+                                   placeholder="https://...">
+                        </div>
+
+                        <div class="form-group">
+                            <label>GitHub URL</label>
+                            <input id="project-github"
+                                   placeholder="https://github.com/...">
+                        </div>
+
+                        <div class="form-group full">
+                            <label>Technologies</label>
+                            <input id="project-technologies"
+                                   placeholder="HTML, CSS, JavaScript, Supabase">
+                        </div>
+
+                        <div class="form-group full">
+                            <label>Description</label>
+                            <textarea id="project-description"></textarea>
+                        </div>
+
+                        <div class="form-group">
+
+                            <label class="checkbox">
+                                <input type="checkbox"
+                                       id="project-featured">
+                                Featured Project
+                            </label>
+
+                        </div>
+
+                        <div class="form-group">
+
+                            <label class="checkbox">
+                                <input type="checkbox"
+                                       id="project-published"
+                                       checked>
+                                Published
+                            </label>
+
+                        </div>
+
+                    </div>
+
+                    <button class="btn btn-primary"
+                            type="submit">
+                        Save Project
+                    </button>
+
+                    <button class="btn btn-secondary"
+                            type="button"
+                            onclick="closeProjectForm()">
+                        Cancel
+                    </button>
+
+                    <div id="project-form-message"
+                         class="form-message"></div>
+
+                </form>
+
+            </div>
+
+        </section>
+
+
+        <!-- ========================= -->
+        <!-- NEWS -->
+        <!-- ========================= -->
+
+        <section id="news" class="section">
+
+            <div class="page-header">
+
+                <div>
+                    <h2>News</h2>
+                    <p>Publish and manage CodeVera news and updates.</p>
+                </div>
+
+                <button class="btn btn-primary"
+                        onclick="openNewsForm()">
+                    + Add News
+                </button>
+
+            </div>
+
+
+            <div class="card">
+
+                <div class="toolbar">
+
+                    <input
+                        id="news-search"
+                        placeholder="Search news..."
+                        oninput="filterNews()"
+                    >
+
+                    <select id="news-filter"
+                            onchange="filterNews()">
+
+                        <option value="">All News</option>
+                        <option value="published">Published</option>
+                        <option value="draft">Drafts</option>
+
+                    </select>
+
+                    <button class="btn btn-secondary"
+                            onclick="loadNews()">
+                        🔄 Refresh
+                    </button>
+
+                </div>
+
+
+                <div class="table-wrap">
+
+                    <table>
+
+                        <thead>
+                            <tr>
+                                <th>Image</th>
+                                <th>Title</th>
+                                <th>Category</th>
+                                <th>Published</th>
+                                <th>Published Date</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+
+                        <tbody id="news-table">
+                            <tr>
+                                <td colspan="6" class="loading">
+                                    Loading news...
+                                </td>
+                            </tr>
+                        </tbody>
+
+                    </table>
+
+                </div>
+
+            </div>
+
+
+            <div class="card"
+                 id="news-form-card"
+                 style="display:none;">
+
+                <h3 id="news-form-title">
+                    Add News
+                </h3>
+
+                <form id="news-form">
+
+                    <input type="hidden" id="news-id">
+
+                    <div class="form-grid">
+
+                        <div class="form-group">
+                            <label>Title *</label>
+                            <input id="news-title" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label>Slug</label>
+                            <input id="news-slug"
+                                   placeholder="Automatically generated">
+                        </div>
+
+                        <div class="form-group">
+                            <label>Category</label>
+                            <input id="news-category">
+                        </div>
+
+                        <div class="form-group">
+                            <label>Image URL</label>
+                            <input id="news-image"
+                                   placeholder="https://...">
+                        </div>
+
+                        <div class="form-group full">
+                            <label>Excerpt</label>
+                            <textarea id="news-excerpt"
+                                      placeholder="Short summary of the article..."></textarea>
+                        </div>
+
+                        <div class="form-group full">
+                            <label>Content *</label>
+                            <textarea id="news-content"
+                                      style="min-height:250px;"
+                                      required></textarea>
+                        </div>
+
+                        <div class="form-group full">
+
+                            <label class="checkbox">
+
+                                <input type="checkbox"
+                                       id="news-published">
+
+                                Publish this news
+
+                            </label>
+
+                        </div>
+
+                    </div>
+
+                    <button class="btn btn-primary"
+                            type="submit">
+                        Save News
+                    </button>
+
+                    <button class="btn btn-secondary"
+                            type="button"
+                            onclick="closeNewsForm()">
+                        Cancel
+                    </button>
+
+                    <div id="news-form-message"
+                         class="form-message"></div>
+
+                </form>
+
+            </div>
+
+        </section>
+
+    </div>
+</main>
+
+
+<!-- ========================= -->
+<!-- GENERAL MODAL -->
+<!-- ========================= -->
+
+<div class="modal" id="details-modal">
+
+    <div class="modal-box">
+
+        <div class="modal-header">
+
+            <h3 id="modal-title">
+                Details
+            </h3>
+
+            <button class="close-modal"
+                    onclick="closeModal()">
+                ×
+            </button>
+
+        </div>
+
+        <div id="modal-content"></div>
+
+    </div>
+
+</div>
+
+
+<script>
+
+/* =========================================================
+   SUPABASE
+========================================================= */
+
+const SUPABASE_URL =
+    "https://ugfrwkctmulxxprcuioz.supabase.co";
+
+const SUPABASE_ANON_KEY =
+    "sb_publishable_egKPDjgXJIAxsTY5Qe_f9Q_L2nZ-vJ5";
+
+const { createClient } = supabase;
+
+const codeveraSupabase =
+    createClient(
+        SUPABASE_URL,
+        SUPABASE_ANON_KEY
+    );
+
+
+/* =========================================================
+   GLOBAL DATA
+========================================================= */
+
+window.currentUser = null;
+
+window.allMessages = [];
+window.allCourses = [];
+window.allRegistrations = [];
+window.allServices = [];
+window.allProjects = [];
+window.allNews = [];
+
+
+/* =========================================================
+   HELPERS
+========================================================= */
+
+function escapeHTML(value){
+
+    if(value === null || value === undefined){
+        return "";
+    }
+
+    return String(value)
+        .replace(/&/g,"&amp;")
+        .replace(/</g,"&lt;")
+        .replace(/>/g,"&gt;")
+        .replace(/"/g,"&quot;")
+        .replace(/'/g,"&#039;");
+}
+
+
+function formatDate(date){
+
+    if(!date){
+        return "-";
+    }
+
+    const d = new Date(date);
+
+    if(isNaN(d.getTime())){
+        return "-";
+    }
+
+    return d.toLocaleDateString(
+        undefined,
+        {
+            year:"numeric",
+            month:"short",
+            day:"numeric"
+        }
+    );
+}
+
+
+function formatDateTime(date){
+
+    if(!date){
+        return "-";
+    }
+
+    const d = new Date(date);
+
+    if(isNaN(d.getTime())){
+        return "-";
+    }
+
+    return d.toLocaleString();
+}
+
+
+function generateSlug(text){
+
+    return String(text || "")
+        .toLowerCase()
+        .trim()
+        .replace(/[^a-z0-9\s-]/g,"")
+        .replace(/\s+/g,"-")
+        .replace(/-+/g,"-");
+}
+
+
+function showFormMessage(id,message,type){
+
+    const el = document.getElementById(id);
+
+    if(!el){
+        return;
+    }
+
+    el.textContent = message;
+
+    el.className =
+        "form-message " +
+        (type === "success"
+            ? "success"
+            : "error");
+}
+
+
+function clearFormMessage(id){
+
+    const el = document.getElementById(id);
+
+    if(el){
+        el.textContent = "";
+        el.className = "form-message";
+    }
+}
+
+
+function imageHTML(url){
+
+    if(!url){
+        return `<div style="width:55px;height:45px;background:#e5e7eb;border-radius:7px;"></div>`;
+    }
+
+    return `
+        <img
+            class="preview-image"
+            src="${escapeHTML(url)}"
+            alt="Image"
+            onerror="this.style.display='none'"
+        >
+    `;
+}
+
+
+/* =========================================================
+   AUTHENTICATION
+========================================================= */
+
+async function checkAdmin(){
+
+    const {
+        data:{
+            user
+        }
+    } = await codeveraSupabase.auth.getUser();
+
+    if(!user){
+
+        window.location.href = "admin.html";
+        return null;
+    }
+
+
+    const {
+        data:profile,
+        error
+    } = await codeveraSupabase
+        .from("profiles")
+        .select("role")
+        .eq("id",user.id)
+        .single();
+
+
+    if(
+        error ||
+        !profile ||
+        profile.role !== "admin"
+    ){
+
+        await codeveraSupabase.auth.signOut();
+
+        window.location.href = "admin.html";
+
+        return null;
+    }
+
+
+    window.currentUser = user;
+
+    const email =
+        document.getElementById("admin-email");
+
+    if(email){
+        email.textContent =
+            user.email || "Administrator";
+    }
+
+    return user;
+}
+
+
+async function logout(){
+
+    await codeveraSupabase.auth.signOut();
+
+    window.location.href = "admin.html";
+}
+
+
+/* =========================================================
+   NAVIGATION
+========================================================= */
+
+function showSection(sectionId,button){
+
+    document
+        .querySelectorAll(".section")
+        .forEach(section => {
+            section.classList.remove("active");
+        });
+
+
+    const section =
+        document.getElementById(sectionId);
+
+    if(section){
+        section.classList.add("active");
+    }
+
+
+    document
+        .querySelectorAll(".nav-btn")
+        .forEach(btn => {
+            btn.classList.remove("active");
+        });
+
+
+    if(button){
+        button.classList.add("active");
+    }
+
+
+    const titles = {
+        overview:"Dashboard",
+        messages:"Messages",
+        courses:"Courses",
+        registrations:"Registrations",
+        services:"Services",
+        projects:"Projects",
+        news:"News"
+    };
+
+
+    document.getElementById("page-title")
+        .textContent =
+        titles[sectionId] || "Dashboard";
+
+
+    document
+        .getElementById("sidebar")
+        .classList.remove("open");
+
+
+    if(sectionId === "messages"){
+        loadMessages();
+    }
+
+    if(sectionId === "courses"){
+        loadCourses();
+    }
+
+    if(sectionId === "registrations"){
+        loadRegistrations();
+    }
+
+    if(sectionId === "services"){
+        loadServices();
+    }
+
+    if(sectionId === "projects"){
+        loadProjects();
+    }
+
+    if(sectionId === "news"){
+        loadNews();
+    }
+}
+
+
+function toggleSidebar(){
+
+    document
+        .getElementById("sidebar")
+        .classList.toggle("open");
+}
+
+
+/* =========================================================
+   STATISTICS
+========================================================= */
+
+async function getCount(table){
+
+    const {
+        count,
+        error
+    } = await codeveraSupabase
+        .from(table)
+        .select("*",{
+            count:"exact",
+            head:true
+        });
+
+    if(error){
+
+        console.error(
+            "COUNT ERROR:",
+            table,
+            error
+        );
+
+        return 0;
+    }
+
+    return count || 0;
+}
+
+
+async function loadStatistics(){
+
+    const [
+        messages,
+        courses,
+        services,
+        projects,
+        registrations
+    ] = await Promise.all([
+
+        getCount("contact_messages"),
+        getCount("courses"),
+        getCount("services"),
+        getCount("projects"),
+        getCount("course_registrations")
+
+    ]);
+
+
+    document.getElementById(
+        "message-count"
+    ).textContent = messages;
+
+
+    document.getElementById(
+        "course-count"
+    ).textContent = courses;
+
+
+    document.getElementById(
+        "service-count"
+    ).textContent = services;
+
+
+    document.getElementById(
+        "project-count"
+    ).textContent = projects;
+
+
+    document.getElementById(
+        "registration-count"
+    ).textContent = registrations;
+}
+
+
+/* =========================================================
+   MESSAGES
+========================================================= */
+
+async function loadMessages(){
+
+    const table =
+        document.getElementById(
+            "messages-table"
+        );
+
+    if(!table){
+        return;
+    }
+
+
+    table.innerHTML = `
+        <tr>
+            <td colspan="8" class="loading">
+                Loading messages...
+            </td>
+        </tr>
+    `;
+
+
+    const {
+        data,
+        error
+    } = await codeveraSupabase
+        .from("contact_messages")
+        .select(`
+            id,
+            name,
+            email,
+            phone,
+            organization,
+            subject,
+            service,
+            message,
+            created_at
+        `)
+        .order(
+            "created_at",
+            {
+                ascending:false
+            }
+        );
+
+
+    if(error){
+
+        console.error(
+            "LOAD MESSAGES ERROR:",
+            error
+        );
+
+        table.innerHTML = `
+            <tr>
+                <td colspan="8" class="empty">
+                    Unable to load messages.
+                    <br><br>
+                    ${escapeHTML(error.message)}
+                </td>
+            </tr>
+        `;
+
+        return;
+    }
+
+
+    window.allMessages = data || [];
+
+    renderMessages(
+        window.allMessages
+    );
+
+
+    populateMessageServiceFilter(
+        window.allMessages
+    );
+
+
+    renderRecentMessages(
+        window.allMessages
+    );
+}
+
+
+function populateMessageServiceFilter(messages){
+
+    const select =
+        document.getElementById(
+            "message-service-filter"
+        );
+
+    if(!select){
+        return;
+    }
+
+
+    const current =
+        select.value;
+
+
+    const services =
+        [
+            ...new Set(
+                messages
+                    .map(m => m.service)
+                    .filter(Boolean)
+            )
+        ]
+        .sort();
+
+
+    select.innerHTML =
+        `<option value="">All Services</option>`;
+
+
+    services.forEach(service => {
+
+        const option =
+            document.createElement("option");
+
+        option.value = service;
+        option.textContent = service;
+
+        select.appendChild(option);
+    });
+
+
+    select.value = current;
+}
+
+
+function renderMessages(messages){
+
+    const table =
+        document.getElementById(
+            "messages-table"
+        );
+
+    if(!table){
+        return;
+    }
+
+
+    if(!messages.length){
+
+        table.innerHTML = `
+            <tr>
+                <td colspan="8" class="empty">
+                    No messages found.
+                </td>
+            </tr>
+        `;
+
+        return;
+    }
+
+
+    table.innerHTML =
+        messages.map(message => `
+
+            <tr>
+
+                <td>
+                    ${escapeHTML(message.name)}
+                </td>
+
+                <td>
+                    ${escapeHTML(message.email)}
+                </td>
+
+                <td>
+                    ${escapeHTML(message.phone || "-")}
+                </td>
+
+                <td>
+                    ${escapeHTML(message.organization || "-")}
+                </td>
+
+                <td>
+                    ${escapeHTML(message.subject || "-")}
+                </td>
+
+                <td>
+                    ${escapeHTML(message.service || "-")}
+                </td>
+
+                <td>
+                    ${formatDate(message.created_at)}
+                </td>
+
+                <td>
+
+                    <div class="actions">
+
+                        <button
+                            class="btn btn-primary"
+                            onclick="viewMessage('${message.id}')">
+                            View
+                        </button>
+
+                        <button
+                            class="btn btn-danger"
+                            onclick="deleteMessage('${message.id}')">
+                            Delete
+                        </button>
+
+                    </div>
+
+                </td>
+
+            </tr>
+
+        `).join("");
+}
+
+
+function filterMessages(){
+
+    const search =
+        (
+            document.getElementById(
+                "message-search"
+            )?.value || ""
+        )
+        .toLowerCase()
+        .trim();
+
+
+    const service =
+        document.getElementById(
+            "message-service-filter"
+        )?.value || "";
+
+
+    const filtered =
+        window.allMessages.filter(message => {
+
+            const text =
+                [
+                    message.name,
+                    message.email,
+                    message.phone,
+                    message.organization,
+                    message.subject,
+                    message.service,
+                    message.message
+                ]
+                .join(" ")
+                .toLowerCase();
+
+
+            const matchesSearch =
+                !search ||
+                text.includes(search);
+
+
+            const matchesService =
+                !service ||
+                message.service === service;
+
+
+            return (
+                matchesSearch &&
+                matchesService
+            );
+        });
+
+
+    renderMessages(filtered);
+}
+
+
+function renderRecentMessages(messages){
+
+    const table =
+        document.getElementById(
+            "recent-messages"
+        );
+
+    if(!table){
+        return;
+    }
+
+
+    const recent =
+        messages.slice(0,5);
+
+
+    if(!recent.length){
+
+        table.innerHTML = `
+            <tr>
+                <td colspan="3" class="empty">
+                    No messages yet.
+                </td>
+            </tr>
+        `;
+
+        return;
+    }
+
+
+    table.innerHTML =
+        recent.map(message => `
+
+            <tr>
+
+                <td>
+                    ${escapeHTML(message.name || "-")}
+                </td>
+
+                <td>
+                    ${escapeHTML(message.subject || "-")}
+                </td>
+
+                <td>
+                    ${formatDate(message.created_at)}
+                </td>
+
+            </tr>
+
+        `).join("");
+}
+
+
+function viewMessage(id){
+
+    const message =
+        window.allMessages.find(
+            m => String(m.id) === String(id)
+        );
+
+
+    if(!message){
+        return;
+    }
+
+
+    document.getElementById(
+        "modal-title"
+    ).textContent = "Message Details";
+
+
+    document.getElementById(
+        "modal-content"
+    ).innerHTML = `
+
+        <div class="detail-row">
+            <strong>Name</strong>
+            ${escapeHTML(message.name)}
+        </div>
+
+        <div class="detail-row">
+            <strong>Email</strong>
+            ${escapeHTML(message.email)}
+        </div>
+
+        <div class="detail-row">
+            <strong>Phone</strong>
+            ${escapeHTML(message.phone || "-")}
+        </div>
+
+        <div class="detail-row">
+            <strong>Organization</strong>
+            ${escapeHTML(message.organization || "-")}
+        </div>
+
+        <div class="detail-row">
+            <strong>Subject</strong>
+            ${escapeHTML(message.subject || "-")}
+        </div>
+
+        <div class="detail-row">
+            <strong>Service</strong>
+            ${escapeHTML(message.service || "-")}
+        </div>
+
+        <div class="detail-row">
+            <strong>Date</strong>
+            ${formatDateTime(message.created_at)}
+        </div>
+
+        <div class="detail-row">
+            <strong>Message</strong>
+            <div style="white-space:pre-wrap;">
+                ${escapeHTML(message.message || "-")}
+            </div>
+        </div>
+
+    `;
+
+
+    document
+        .getElementById("details-modal")
+        .classList.add("show");
+}
+
+
+async function deleteMessage(id){
+
+    if(!confirm(
+        "Are you sure you want to delete this message?"
+    )){
+        return;
+    }
+
+
+    const {
+        error
+    } = await codeveraSupabase
+        .from("contact_messages")
+        .delete()
+        .eq("id",id);
+
+
+    if(error){
+
+        alert(
+            "Unable to delete message:\n" +
+            error.message
+        );
+
+        return;
+    }
+
+
+    await loadMessages();
+    await loadStatistics();
+}
+
+
+/* =========================================================
+   COURSES
+========================================================= */
+
+async function loadCourses(){
+
+    const table =
+        document.getElementById(
+            "courses-table"
+        );
+
+    if(!table){
+        return;
+    }
+
+
+    table.innerHTML = `
+        <tr>
+            <td colspan="7" class="loading">
+                Loading courses...
+            </td>
+        </tr>
+    `;
+
+
+    const {
+        data,
+        error
+    } = await codeveraSupabase
+        .from("courses")
+        .select("*")
+        .order(
+            "created_at",
+            {
+                ascending:false
+            }
+        );
+
+
+    if(error){
+
+        console.error(
+            "LOAD COURSES ERROR:",
+            error
+        );
+
+        table.innerHTML = `
+            <tr>
+                <td colspan="7" class="empty">
+                    Unable to load courses.
+                    <br><br>
+                    ${escapeHTML(error.message)}
+                </td>
+            </tr>
+        `;
+
+        return;
+    }
+
+
+    window.allCourses =
+        data || [];
+
+
+    renderCourses(
+        window.allCourses
+    );
+}
+
+
+function renderCourses(courses){
+
+    const table =
+        document.getElementById(
+            "courses-table"
+        );
+
+
+    if(!courses.length){
+
+        table.innerHTML = `
+            <tr>
+                <td colspan="7" class="empty">
+                    No courses have been added yet.
+                </td>
+            </tr>
+        `;
+
+        return;
+    }
+
+
+    table.innerHTML =
+        courses.map(course => {
+
+            const active =
+                course.is_active !== false;
+
+
+            return `
+
+                <tr>
+
+                    <td>
+                        ${imageHTML(course.image_url)}
+                    </td>
+
+                    <td>
+                        <strong>
+                            ${escapeHTML(course.title)}
+                        </strong>
+                    </td>
+
+                    <td>
+                        ${escapeHTML(course.category || "-")}
+                    </td>
+
+                    <td>
+                        ${escapeHTML(course.duration || "-")}
+                    </td>
+
+                    <td>
+                        ${escapeHTML(course.price || "-")}
+                    </td>
+
+                    <td>
+                        ${
+                            active
+                            ? `<span class="badge badge-green">Active</span>`
+                            : `<span class="badge badge-red">Inactive</span>`
+                        }
+                    </td>
+
+                    <td>
+
+                        <div class="actions">
+
+                            <button
+                                class="btn btn-primary"
+                                onclick="editCourse('${course.id}')">
+                                Edit
+                            </button>
+
+                            <button
+                                class="btn btn-warning"
+                                onclick="toggleCourse('${course.id}',${active})">
+                                ${active ? "Deactivate" : "Activate"}
+                            </button>
+
+                            <button
+                                class="btn btn-danger"
+                                onclick="deleteCourse('${course.id}')">
+                                Delete
+                            </button>
+
+                        </div>
+
+                    </td>
+
+                </tr>
+
+            `;
+        }).join("");
+}
+
+
+function filterCourses(){
+
+    const search =
+        (
+            document.getElementById(
+                "course-search"
+            )?.value || ""
+        )
+        .toLowerCase()
+        .trim();
+
+
+    const filtered =
+        window.allCourses.filter(course => {
+
+            const text =
+                [
+                    course.title,
+                    course.category,
+                    course.duration,
+                    course.price,
+                    course.description
+                ]
+                .join(" ")
+                .toLowerCase();
+
+
+            return text.includes(search);
+        });
+
+
+    renderCourses(filtered);
+}
+
+
+function openCourseForm(course=null){
+
+    const card =
+        document.getElementById(
+            "course-form-card"
+        );
+
+
+    card.style.display = "block";
+
+
+    document.getElementById(
+        "course-form-title"
+    ).textContent =
+        course
+        ? "Edit Course"
+        : "Add Course";
+
+
+    document.getElementById(
+        "course-id"
+    ).value =
+        course?.id || "";
+
+
+    document.getElementById(
+        "course-title"
+    ).value =
+        course?.title || "";
+
+
+    document.getElementById(
+        "course-category"
+    ).value =
+        course?.category || "";
+
+
+    document.getElementById(
+        "course-duration"
+    ).value =
+        course?.duration || "";
+
+
+    document.getElementById(
+        "course-price"
+    ).value =
+        course?.price || "";
+
+
+    document.getElementById(
+        "course-description"
+    ).value =
+        course?.description || "";
+
+
+    document.getElementById(
+        "course-image"
+    ).value =
+        course?.image_url || "";
+
+
+    clearFormMessage(
+        "course-form-message"
+    );
+
+
+    card.scrollIntoView({
+        behavior:"smooth"
+    });
+}
+
+
+function editCourse(id){
+
+    const course =
+        window.allCourses.find(
+            c => String(c.id) === String(id)
+        );
+
+
+    if(course){
+        openCourseForm(course);
+    }
+}
+
+
+function closeCourseForm(){
+
+    document.getElementById(
+        "course-form-card"
+    ).style.display = "none";
+
+
+    document.getElementById(
+        "course-form"
+    ).reset();
+
+
+    document.getElementById(
+        "course-id"
+    ).value = "";
+
+
+    clearFormMessage(
+        "course-form-message"
+    );
+}
+
+
+document.getElementById(
+    "course-form"
+).addEventListener(
+    "submit",
+    async function(event){
+
+        event.preventDefault();
+
+
+        const id =
+            document.getElementById(
+                "course-id"
+            ).value;
+
+
+        const payload = {
+
+            title:
+                document.getElementById(
+                    "course-title"
+                ).value.trim(),
+
+            category:
+                document.getElementById(
+                    "course-category"
+                ).value.trim(),
+
+            duration:
+                document.getElementById(
+                    "course-duration"
+                ).value.trim(),
+
+            price:
+                document.getElementById(
+                    "course-price"
+                ).value.trim(),
+
+            description:
+                document.getElementById(
+                    "course-description"
+                ).value.trim(),
+
+            image_url:
+                document.getElementById(
+                    "course-image"
+                ).value.trim()
+
+        };
+
+
+        clearFormMessage(
+            "course-form-message"
+        );
+
+
+        let error;
+
+
+        if(id){
+
+            ({
+                error
+            } =
+                await codeveraSupabase
+                    .from("courses")
+                    .update(payload)
+                    .eq("id",id));
+
+        }else{
+
+            ({
+                error
+            } =
+                await codeveraSupabase
+                    .from("courses")
+                    .insert(payload));
+
+        }
+
+
+        if(error){
+
+            showFormMessage(
+                "course-form-message",
+                error.message,
+                "error"
+            );
+
+            return;
+        }
+
+
+        showFormMessage(
+            "course-form-message",
+            "Course saved successfully.",
+            "success"
+        );
+
+
+        await loadCourses();
+        await loadStatistics();
+
+
+        setTimeout(
+            closeCourseForm,
+            700
+        );
+    }
+);
+
+
+async function toggleCourse(id,current){
+
+    const {
+        error
+    } = await codeveraSupabase
+        .from("courses")
+        .update({
+            is_active:!current
+        })
+        .eq("id",id);
+
+
+    if(error){
+
+        alert(error.message);
+        return;
+    }
+
+
+    await loadCourses();
+    await loadStatistics();
+}
+
+
+async function deleteCourse(id){
+
+    if(!confirm(
+        "Delete this course?"
+    )){
+        return;
+    }
+
+
+    const {
+        error
+    } = await codeveraSupabase
+        .from("courses")
+        .delete()
+        .eq("id",id);
+
+
+    if(error){
+
+        alert(
+            "Unable to delete course:\n" +
+            error.message
+        );
+
+        return;
+    }
+
+
+    await loadCourses();
+    await loadStatistics();
+}
+
+
+/* =========================================================
+   REGISTRATIONS
+========================================================= */
+
+async function loadRegistrations(){
+
+    const table =
+        document.getElementById(
+            "registrations-table"
+        );
+
+
+    if(!table){
+        return;
+    }
+
+
+    table.innerHTML = `
+        <tr>
+            <td colspan="7" class="loading">
+                Loading registrations...
+            </td>
+        </tr>
+    `;
+
+
+    const {
+        data,
+        error
+    } = await codeveraSupabase
+        .from("course_registrations")
+        .select(`
+            id,
+            full_name,
+            email,
+            phone,
+            status,
+            registered_at,
+            course_id,
+            courses (
+                title
+            )
+        `)
+        .order(
+            "registered_at",
+            {
+                ascending:false
+            }
+        );
+
+
+    if(error){
+
+        console.error(
+            "LOAD REGISTRATIONS ERROR:",
+            error
+        );
+
+
+        table.innerHTML = `
+            <tr>
+                <td colspan="7" class="empty">
+                    Unable to load registrations.
+                    <br><br>
+                    ${escapeHTML(error.message)}
+                </td>
+            </tr>
+        `;
+
+        return;
+    }
+
+
+    window.allRegistrations =
+        data || [];
+
+
+    updateRegistrationStatistics(
+        window.allRegistrations
+    );
+
+
+    renderRegistrations(
+        window.allRegistrations
+    );
+
+
+    renderRecentRegistrations(
+        window.allRegistrations
+    );
+}
+
+
+function updateRegistrationStatistics(registrations){
+
+    const total =
+        registrations.length;
+
+
+    const pending =
+        registrations.filter(
+            r =>
+                String(
+                    r.status || "pending"
+                ).toLowerCase()
+                === "pending"
+        ).length;
+
+
+    const approved =
+        registrations.filter(
+            r =>
+                String(
+                    r.status || ""
+                ).toLowerCase()
+                === "approved"
+        ).length;
+
+
+    const completed =
+        registrations.filter(
+            r =>
+                String(
+                    r.status || ""
+                ).toLowerCase()
+                === "completed"
+        ).length;
+
+
+    document.getElementById(
+        "reg-total"
+    ).textContent = total;
+
+
+    document.getElementById(
+        "reg-pending"
+    ).textContent = pending;
+
+
+    document.getElementById(
+        "reg-approved"
+    ).textContent = approved;
+
+
+    document.getElementById(
+        "reg-completed"
+    ).textContent = completed;
+}
+
+
+function registrationBadge(status){
+
+    const value =
+        String(
+            status || "pending"
+        ).toLowerCase();
+
+
+    if(value === "approved"){
+        return `<span class="badge badge-blue">Approved</span>`;
+    }
+
+    if(value === "completed"){
+        return `<span class="badge badge-green">Completed</span>`;
+    }
+
+    if(value === "cancelled"){
+        return `<span class="badge badge-red">Cancelled</span>`;
+    }
+
+    return `<span class="badge badge-yellow">Pending</span>`;
+}
+
+
+function renderRegistrations(registrations){
+
+    const table =
+        document.getElementById(
+            "registrations-table"
+        );
+
+
+    if(!registrations.length){
+
+        table.innerHTML = `
+            <tr>
+                <td colspan="7" class="empty">
+                    No registrations found.
+                </td>
+            </tr>
+        `;
+
+        return;
+    }
+
+
+    table.innerHTML =
+        registrations.map(registration => {
+
+            const status =
+                String(
+                    registration.status ||
+                    "pending"
+                ).toLowerCase();
+
+
+            return `
+
+                <tr>
+
+                    <td>
+                        <strong>
+                            ${escapeHTML(registration.full_name)}
+                        </strong>
+                    </td>
+
+                    <td>
+                        ${escapeHTML(registration.email)}
+                    </td>
+
+                    <td>
+                        ${escapeHTML(registration.phone || "-")}
+                    </td>
+
+                    <td>
+                        ${escapeHTML(
+                            registration.courses?.title ||
+                            "Unknown Course"
+                        )}
+                    </td>
+
+                    <td>
+                        ${registrationBadge(status)}
+                    </td>
+
+                    <td>
+                        ${formatDate(
+                            registration.registered_at
+                        )}
+                    </td>
+
+                    <td>
+
+                        <div class="actions">
+
+                            <select
+                                onchange="updateRegistrationStatus('${registration.id}',this.value)"
+                                style="width:auto;padding:7px;">
+
+                                <option value="pending"
+                                    ${status==="pending"?"selected":""}>
+                                    Pending
+                                </option>
+
+                                <option value="approved"
+                                    ${status==="approved"?"selected":""}>
+                                    Approved
+                                </option>
+
+                                <option value="completed"
+                                    ${status==="completed"?"selected":""}>
+                                    Completed
+                                </option>
+
+                                <option value="cancelled"
+                                    ${status==="cancelled"?"selected":""}>
+                                    Cancelled
+                                </option>
+
+                            </select>
+
+                            <button
+                                class="btn btn-primary"
+                                onclick="viewRegistration('${registration.id}')">
+                                View
+                            </button>
+
+                            <button
+                                class="btn btn-danger"
+                                onclick="deleteRegistration('${registration.id}')">
+                                Delete
+                            </button>
+
+                        </div>
+
+                    </td>
+
+                </tr>
+
+            `;
+        }).join("");
+}
+
+
+function filterRegistrations(){
+
+    const search =
+        (
+            document.getElementById(
+                "registration-search"
+            )?.value || ""
+        )
+        .toLowerCase()
+        .trim();
+
+
+    const status =
+        document.getElementById(
+            "registration-filter"
+        )?.value || "";
+
+
+    const filtered =
+        window.allRegistrations.filter(registration => {
+
+            const text =
+                [
+                    registration.full_name,
+                    registration.email,
+                    registration.phone,
+                    registration.courses?.title
+                ]
+                .join(" ")
+                .toLowerCase();
+
+
+            const matchesSearch =
+                !search ||
+                text.includes(search);
+
+
+            const registrationStatus =
+                String(
+                    registration.status ||
+                    "pending"
+                ).toLowerCase();
+
+
+            const matchesStatus =
+                !status ||
+                registrationStatus === status;
+
+
+            return (
+                matchesSearch &&
+                matchesStatus
+            );
+        });
+
+
+    renderRegistrations(filtered);
+}
+
+
+function renderRecentRegistrations(registrations){
+
+    const table =
+        document.getElementById(
+            "recent-registrations"
+        );
+
+
+    const recent =
+        registrations.slice(0,5);
+
+
+    if(!recent.length){
+
+        table.innerHTML = `
+            <tr>
+                <td colspan="3" class="empty">
+                    No registrations yet.
+                </td>
+            </tr>
+        `;
+
+        return;
+    }
+
+
+    table.innerHTML =
+        recent.map(registration => `
+
+            <tr>
+
+                <td>
+                    ${escapeHTML(
+                        registration.full_name
+                    )}
+                </td>
+
+                <td>
+                    ${escapeHTML(
+                        registration.courses?.title ||
+                        "-"
+                    )}
+                </td>
+
+                <td>
+                    ${registrationBadge(
+                        registration.status
+                    )}
+                </td>
+
+            </tr>
+
+        `).join("");
+}
+
+
+function viewRegistration(id){
+
+    const registration =
+        window.allRegistrations.find(
+            r => String(r.id) === String(id)
+        );
+
+
+    if(!registration){
+        return;
+    }
+
+
+    document.getElementById(
+        "modal-title"
+    ).textContent =
+        "Registration Details";
+
+
+    document.getElementById(
+        "modal-content"
+    ).innerHTML = `
+
+        <div class="detail-row">
+            <strong>Full Name</strong>
+            ${escapeHTML(registration.full_name)}
+        </div>
+
+        <div class="detail-row">
+            <strong>Email</strong>
+            ${escapeHTML(registration.email)}
+        </div>
+
+        <div class="detail-row">
+            <strong>Phone</strong>
+            ${escapeHTML(registration.phone || "-")}
+        </div>
+
+        <div class="detail-row">
+            <strong>Course</strong>
+            ${escapeHTML(
+                registration.courses?.title ||
+                "-"
+            )}
+        </div>
+
+        <div class="detail-row">
+            <strong>Status</strong>
+            ${registrationBadge(
+                registration.status
+            )}
+        </div>
+
+        <div class="detail-row">
+            <strong>Registered</strong>
+            ${formatDateTime(
+                registration.registered_at
+            )}
+        </div>
+
+    `;
+
+
+    document
+        .getElementById("details-modal")
+        .classList.add("show");
+}
+
+
+async function updateRegistrationStatus(id,status){
+
+    const {
+        error
+    } = await codeveraSupabase
+        .from("course_registrations")
+        .update({
+            status:status
+        })
+        .eq("id",id);
+
+
+    if(error){
+
+        alert(
+            "Unable to update status:\n" +
+            error.message
+        );
+
+        await loadRegistrations();
+
+        return;
+    }
+
+
+    await loadRegistrations();
+}
+
+
+async function deleteRegistration(id){
+
+    if(!confirm(
+        "Delete this registration?"
+    )){
+        return;
+    }
+
+
+    const {
+        error
+    } = await codeveraSupabase
+        .from("course_registrations")
+        .delete()
+        .eq("id",id);
+
+
+    if(error){
+
+        alert(
+            "Unable to delete registration:\n" +
+            error.message
+        );
+
+        return;
+    }
+
+
+    await loadRegistrations();
+    await loadStatistics();
+}
+
+
+/* =========================================================
+   SERVICES
+========================================================= */
+
+async function loadServices(){
+
+    const table =
+        document.getElementById(
+            "services-table"
+        );
+
+
+    if(!table){
+        return;
+    }
+
+
+    table.innerHTML = `
+        <tr>
+            <td colspan="7" class="loading">
+                Loading services...
+            </td>
+        </tr>
+    `;
+
+
+    const {
+        data,
+        error
+    } = await codeveraSupabase
+        .from("services")
+        .select(`
+            id,
+            title,
+            slug,
+            description,
+            icon,
+            image_url,
+            is_active,
+            created_at,
+            updated_at
+        `)
+        .order(
+            "created_at",
+            {
+                ascending:false
+            }
+        );
+
+
+    if(error){
+
+        console.error(
+            "LOAD SERVICES ERROR:",
+            error
+        );
+
+
+        table.innerHTML = `
+            <tr>
+                <td colspan="7" class="empty">
+                    Unable to load services.
+                    <br><br>
+                    ${escapeHTML(error.message)}
+                </td>
+            </tr>
+        `;
+
+        return;
+    }
+
+
+    window.allServices =
+        data || [];
+
+
+    renderServices(
+        window.allServices
+    );
+}
+
+
+function renderServices(services){
+
+    const table =
+        document.getElementById(
+            "services-table"
+        );
+
+
+    if(!services.length){
+
+        table.innerHTML = `
+            <tr>
+                <td colspan="7" class="empty">
+                    No services have been added yet.
+                </td>
+            </tr>
+        `;
+
+        return;
+    }
+
+
+    table.innerHTML =
+        services.map(service => `
+
+            <tr>
+
+                <td style="font-size:24px;">
+                    ${escapeHTML(service.icon || "🛠️")}
+                </td>
+
+                <td>
+                    ${imageHTML(service.image_url)}
+                </td>
+
+                <td>
+                    <strong>
+                        ${escapeHTML(service.title)}
+                    </strong>
+                </td>
+
+                <td>
+                    ${escapeHTML(service.slug || "-")}
+                </td>
+
+                <td>
+                    ${escapeHTML(
+                        service.description || "-"
+                    ).substring(0,120)}
+                    ${
+                        (service.description || "").length > 120
+                        ? "..."
+                        : ""
+                    }
+                </td>
+
+                <td>
+                    ${
+                        service.is_active
+                        ? `<span class="badge badge-green">Active</span>`
+                        : `<span class="badge badge-red">Inactive</span>`
+                    }
+                </td>
+
+                <td>
+
+                    <div class="actions">
+
+                        <button
+                            class="btn btn-primary"
+                            onclick="editService('${service.id}')">
+                            Edit
+                        </button>
+
+                        <button
+                            class="btn btn-warning"
+                            onclick="toggleService('${service.id}',${service.is_active})">
+                            ${service.is_active ? "Deactivate" : "Activate"}
+                        </button>
+
+                        <button
+                            class="btn btn-danger"
+                            onclick="deleteService('${service.id}')">
+                            Delete
+                        </button>
+
+                    </div>
+
+                </td>
+
+            </tr>
+
+        `).join("");
+}
+
+
+function filterServices(){
+
+    const search =
+        (
+            document.getElementById(
+                "service-search"
+            )?.value || ""
+        )
+        .toLowerCase()
+        .trim();
+
+
+    const filtered =
+        window.allServices.filter(service => {
+
+            const text =
+                [
+                    service.title,
+                    service.slug,
+                    service.description,
+                    service.icon
+                ]
+                .join(" ")
+                .toLowerCase();
+
+
+            return text.includes(search);
+        });
+
+
+    renderServices(filtered);
+}
+
+
+function openServiceForm(service=null){
+
+    document.getElementById(
+        "service-form-card"
+    ).style.display = "block";
+
+
+    document.getElementById(
+        "service-form-title"
+    ).textContent =
+        service
+        ? "Edit Service"
+        : "Add Service";
+
+
+    document.getElementById(
+        "service-id"
+    ).value =
+        service?.id || "";
+
+
+    document.getElementById(
+        "service-title"
+    ).value =
+        service?.title || "";
+
+
+    document.getElementById(
+        "service-slug"
+    ).value =
+        service?.slug || "";
+
+
+    document.getElementById(
+        "service-description"
+    ).value =
+        service?.description || "";
+
+
+    document.getElementById(
+        "service-icon"
+    ).value =
+        service?.icon || "";
+
+
+    document.getElementById(
+        "service-image"
+    ).value =
+        service?.image_url || "";
+
+
+    document.getElementById(
+        "service-active"
+    ).checked =
+        service
+        ? service.is_active !== false
+        : true;
+
+
+    clearFormMessage(
+        "service-form-message"
+    );
+
+
+    document.getElementById(
+        "service-form-card"
+    ).scrollIntoView({
+        behavior:"smooth"
+    });
+}
+
+
+function editService(id){
+
+    const service =
+        window.allServices.find(
+            s => String(s.id) === String(id)
+        );
+
+
+    if(service){
+        openServiceForm(service);
+    }
+}
+
+
+function closeServiceForm(){
+
+    document.getElementById(
+        "service-form-card"
+    ).style.display = "none";
+
+
+    document.getElementById(
+        "service-form"
+    ).reset();
+
+
+    document.getElementById(
+        "service-id"
+    ).value = "";
+
+
+    clearFormMessage(
+        "service-form-message"
+    );
+}
+
+
+document.getElementById(
+    "service-form"
+).addEventListener(
+    "submit",
+    async function(event){
+
+        event.preventDefault();
+
+
+        const id =
+            document.getElementById(
+                "service-id"
+            ).value;
+
+
+        const title =
+            document.getElementById(
+                "service-title"
+            ).value.trim();
+
+
+        let slug =
+            document.getElementById(
+                "service-slug"
+            ).value.trim();
+
+
+        if(!slug){
+            slug = generateSlug(title);
+        }
+
+
+        const payload = {
+
+            title:title,
+
+            slug:slug,
+
+            description:
+                document.getElementById(
+                    "service-description"
+                ).value.trim(),
+
+            icon:
+                document.getElementById(
+                    "service-icon"
+                ).value.trim(),
+
+            image_url:
+                document.getElementById(
+                    "service-image"
+                ).value.trim(),
+
+            is_active:
+                document.getElementById(
+                    "service-active"
+                ).checked
+
+        };
+
+
+        let error;
+
+
+        if(id){
+
+            ({
+                error
+            } =
+                await codeveraSupabase
+                    .from("services")
+                    .update(payload)
+                    .eq("id",id));
+
+        }else{
+
+            ({
+                error
+            } =
+                await codeveraSupabase
+                    .from("services")
+                    .insert(payload));
+
+        }
+
+
+        if(error){
+
+            showFormMessage(
+                "service-form-message",
+                error.message,
+                "error"
+            );
+
+            return;
+        }
+
+
+        showFormMessage(
+            "service-form-message",
+            "Service saved successfully.",
+            "success"
+        );
+
+
+        await loadServices();
+        await loadStatistics();
+
+
+        setTimeout(
+            closeServiceForm,
+            700
+        );
+    }
+);
+
+
+async function toggleService(id,current){
+
+    const {
+        error
+    } = await codeveraSupabase
+        .from("services")
+        .update({
+            is_active:!current
+        })
+        .eq("id",id);
+
+
+    if(error){
+
+        alert(error.message);
+        return;
+    }
+
+
+    await loadServices();
+    await loadStatistics();
+}
+
+
+async function deleteService(id){
+
+    if(!confirm(
+        "Delete this service?"
+    )){
+        return;
+    }
+
+
+    const {
+        error
+    } = await codeveraSupabase
+        .from("services")
+        .delete()
+        .eq("id",id);
+
+
+    if(error){
+
+        alert(
+            "Unable to delete service:\n" +
+            error.message
+        );
+
+        return;
+    }
+
+
+    await loadServices();
+    await loadStatistics();
+}
+
+
+/* =========================================================
+   PROJECTS
+========================================================= */
+
+async function loadProjects(){
+
+    const table =
+        document.getElementById(
+            "projects-table"
+        );
+
+
+    if(!table){
+        return;
+    }
+
+
+    table.innerHTML = `
+        <tr>
+            <td colspan="8" class="loading">
+                Loading projects...
+            </td>
+        </tr>
+    `;
+
+
+    const {
+        data,
+        error
+    } = await codeveraSupabase
+        .from("projects")
+        .select(`
+            id,
+            title,
+            slug,
+            description,
+            client_name,
+            category,
+            image_url,
+            project_url,
+            github_url,
+            technologies,
+            is_featured,
+            is_published,
+            created_at,
+            updated_at
+        `)
+        .order(
+            "created_at",
+            {
+                ascending:false
+            }
+        );
+
+
+    if(error){
+
+        console.error(
+            "LOAD PROJECTS ERROR:",
+            error
+        );
+
+
+        table.innerHTML = `
+            <tr>
+                <td colspan="8" class="empty">
+                    Unable to load projects.
+                    <br><br>
+                    ${escapeHTML(error.message)}
+                </td>
+            </tr>
+        `;
+
+        return;
+    }
+
+
+    window.allProjects =
+        data || [];
+
+
+    renderProjects(
+        window.allProjects
+    );
+}
+
+
+function renderProjects(projects){
+
+    const table =
+        document.getElementById(
+            "projects-table"
+        );
+
+
+    if(!projects.length){
+
+        table.innerHTML = `
+            <tr>
+                <td colspan="8" class="empty">
+                    No projects have been added yet.
+                </td>
+            </tr>
+        `;
+
+        return;
+    }
+
+
+    table.innerHTML =
+        projects.map(project => `
+
+            <tr>
+
+                <td>
+                    ${imageHTML(project.image_url)}
+                </td>
+
+                <td>
+                    <strong>
+                        ${escapeHTML(project.title)}
+                    </strong>
+                </td>
+
+                <td>
+                    ${escapeHTML(project.category || "-")}
+                </td>
+
+                <td>
+                    ${escapeHTML(project.client_name || "-")}
+                </td>
+
+                <td>
+                    ${escapeHTML(project.status || "-")}
+                </td>
+
+                <td>
+                    ${
+                        project.is_featured
+                        ? `<span class="badge badge-yellow">Featured</span>`
+                        : `<span class="badge badge-gray">No</span>`
+                    }
+                </td>
+
+                <td>
+                    ${
+                        project.is_published
+                        ? `<span class="badge badge-green">Published</span>`
+                        : `<span class="badge badge-gray">Draft</span>`
+                    }
+                </td>
+
+                <td>
+
+                    <div class="actions">
+
+                        <button
+                            class="btn btn-primary"
+                            onclick="editProject('${project.id}')">
+                            Edit
+                        </button>
+
+                        <button
+                            class="btn btn-warning"
+                            onclick="toggleProjectPublished('${project.id}',${project.is_published})">
+                            ${project.is_published ? "Unpublish" : "Publish"}
+                        </button>
+
+                        <button
+                            class="btn btn-danger"
+                            onclick="deleteProject('${project.id}')">
+                            Delete
+                        </button>
+
+                    </div>
+
+                </td>
+
+            </tr>
+
+        `).join("");
+}
+
+
+function filterProjects(){
+
+    const search =
+        (
+            document.getElementById(
+                "project-search"
+            )?.value || ""
+        )
+        .toLowerCase()
+        .trim();
+
+
+    const filtered =
+        window.allProjects.filter(project => {
+
+            const text =
+                [
+                    project.title,
+                    project.slug,
+                    project.description,
+                    project.client_name,
+                    project.category,
+                    project.technologies,
+                    project.status
+                ]
+                .join(" ")
+                .toLowerCase();
+
+
+            return text.includes(search);
+        });
+
+
+    renderProjects(filtered);
+}
+
+
+function openProjectForm(project=null){
+
+    document.getElementById(
+        "project-form-card"
+    ).style.display = "block";
+
+
+    document.getElementById(
+        "project-form-title"
+    ).textContent =
+        project
+        ? "Edit Project"
+        : "Add Project";
+
+
+    document.getElementById(
+        "project-id"
+    ).value =
+        project?.id || "";
+
+
+    document.getElementById(
+        "project-title"
+    ).value =
+        project?.title || "";
+
+
+    document.getElementById(
+        "project-slug"
+    ).value =
+        project?.slug || "";
+
+
+    document.getElementById(
+        "project-description"
+    ).value =
+        project?.description || "";
+
+
+    document.getElementById(
+        "project-client"
+    ).value =
+        project?.client_name || "";
+
+
+    document.getElementById(
+        "project-category"
+    ).value =
+        project?.category || "";
+
+
+    document.getElementById(
+        "project-image"
+    ).value =
+        project?.image_url || "";
+
+
+    document.getElementById(
+        "project-url"
+    ).value =
+        project?.project_url || "";
+
+
+    document.getElementById(
+        "project-github"
+    ).value =
+        project?.github_url || "";
+
+
+    document.getElementById(
+        "project-technologies"
+    ).value =
+        project?.technologies || "";
+
+
+    document.getElementById(
+        "project-status"
+    ).value =
+        project?.status || "";
+
+
+    document.getElementById(
+        "project-featured"
+    ).checked =
+        project?.is_featured || false;
+
+
+    document.getElementById(
+        "project-published"
+    ).checked =
+        project
+        ? project.is_published
+        : true;
+
+
+    clearFormMessage(
+        "project-form-message"
+    );
+
+
+    document.getElementById(
+        "project-form-card"
+    ).scrollIntoView({
+        behavior:"smooth"
+    });
+}
+
+
+function editProject(id){
+
+    const project =
+        window.allProjects.find(
+            p => String(p.id) === String(id)
+        );
+
+
+    if(project){
+        openProjectForm(project);
+    }
+}
+
+
+function closeProjectForm(){
+
+    document.getElementById(
+        "project-form-card"
+    ).style.display = "none";
+
+
+    document.getElementById(
+        "project-form"
+    ).reset();
+
+
+    document.getElementById(
+        "project-id"
+    ).value = "";
+
+
+    clearFormMessage(
+        "project-form-message"
+    );
+}
+
+
+document.getElementById(
+    "project-form"
+).addEventListener(
+    "submit",
+    async function(event){
+
+        event.preventDefault();
+
+
+        const id =
+            document.getElementById(
+                "project-id"
+            ).value;
+
+
+        const title =
+            document.getElementById(
+                "project-title"
+            ).value.trim();
+
+
+        let slug =
+            document.getElementById(
+                "project-slug"
+            ).value.trim();
+
+
+        if(!slug){
+            slug = generateSlug(title);
+        }
+
+
+        const payload = {
+
+            title:title,
+
+            slug:slug,
+
+            description:
+                document.getElementById(
+                    "project-description"
+                ).value.trim(),
+
+            client_name:
+                document.getElementById(
+                    "project-client"
+                ).value.trim(),
+
+            category:
+                document.getElementById(
+                    "project-category"
+                ).value.trim(),
+
+            image_url:
+                document.getElementById(
+                    "project-image"
+                ).value.trim(),
+
+            project_url:
+                document.getElementById(
+                    "project-url"
+                ).value.trim(),
+
+            github_url:
+                document.getElementById(
+                    "project-github"
+                ).value.trim(),
+
+            technologies:
+                document.getElementById(
+                    "project-technologies"
+                ).value.trim(),
+
+            status:
+                document.getElementById(
+                    "project-status"
+                ).value.trim(),
+
+            is_featured:
+                document.getElementById(
+                    "project-featured"
+                ).checked,
+
+            is_published:
+                document.getElementById(
+                    "project-published"
+                ).checked
+
+        };
+
+
+        let error;
+
+
+        if(id){
+
+            ({
+                error
+            } =
+                await codeveraSupabase
+                    .from("projects")
+                    .update(payload)
+                    .eq("id",id));
+
+        }else{
+
+            ({
+                error
+            } =
+                await codeveraSupabase
+                    .from("projects")
+                    .insert(payload));
+
+        }
+
+
+        if(error){
+
+            showFormMessage(
+                "project-form-message",
+                error.message,
+                "error"
+            );
+
+            return;
+        }
+
+
+        showFormMessage(
+            "project-form-message",
+            "Project saved successfully.",
+            "success"
+        );
+
+
+        await loadProjects();
+        await loadStatistics();
+
+
+        setTimeout(
+            closeProjectForm,
+            700
+        );
+    }
+);
+
+
+async function toggleProjectPublished(id,current){
+
+    const {
+        error
+    } = await codeveraSupabase
+        .from("projects")
+        .update({
+            is_published:!current
+        })
+        .eq("id",id);
+
+
+    if(error){
+
+        alert(error.message);
+        return;
+    }
+
+
+    await loadProjects();
+    await loadStatistics();
+}
+
+
+async function deleteProject(id){
+
+    if(!confirm(
+        "Delete this project?"
+    )){
+        return;
+    }
+
+
+    const {
+        error
+    } = await codeveraSupabase
+        .from("projects")
+        .delete()
+        .eq("id",id);
+
+
+    if(error){
+
+        alert(
+            "Unable to delete project:\n" +
+            error.message
+        );
+
+        return;
+    }
+
+
+    await loadProjects();
+    await loadStatistics();
+}
+
+
+/* =========================================================
+   NEWS
+========================================================= */
+
+async function loadNews(){
+
+    const table =
+        document.getElementById(
+            "news-table"
+        );
+
+
+    if(!table){
+        return;
+    }
+
+
+    table.innerHTML = `
+        <tr>
+            <td colspan="6" class="loading">
+                Loading news...
+            </td>
+        </tr>
+    `;
+
+
+    const {
+        data,
+        error
+    } = await codeveraSupabase
+        .from("news")
+        .select(`
+            id,
+            title,
+            slug,
+            excerpt,
+            content,
+            image_url,
+            author_id,
+            is_published,
+            published_at,
+            created_at,
+            updated_at
+        `)
+        .order(
+            "created_at",
+            {
+                ascending:false
+            }
+        );
+
+
+    if(error){
+
+        console.error(
+            "LOAD NEWS ERROR:",
+            error
+        );
+
+
+        table.innerHTML = `
+            <tr>
+                <td colspan="6" class="empty">
+                    Unable to load news.
+                    <br><br>
+                    ${escapeHTML(error.message)}
+                </td>
+            </tr>
+        `;
+
+        return;
+    }
+
+
+    window.allNews =
+        data || [];
+
+
+    renderNews(
+        window.allNews
+    );
+}
+
+
+function renderNews(news){
+
+    const table =
+        document.getElementById(
+            "news-table"
+        );
+
+
+    if(!news.length){
+
+        table.innerHTML = `
+            <tr>
+                <td colspan="6" class="empty">
+                    No news articles have been added yet.
+                </td>
+            </tr>
+        `;
+
+        return;
+    }
+
+
+    table.innerHTML =
+        news.map(article => `
+
+            <tr>
+
+                <td>
+                    ${imageHTML(article.image_url)}
+                </td>
+
+                <td>
+                    <strong>
+                        ${escapeHTML(article.title)}
+                    </strong>
+                </td>
+
+                <td>
+                    ${escapeHTML(article.category || "-")}
+                </td>
+
+                <td>
+                    ${
+                        article.is_published
+                        ? `<span class="badge badge-green">Published</span>`
+                        : `<span class="badge badge-gray">Draft</span>`
+                    }
+                </td>
+
+                <td>
+                    ${formatDate(article.published_at)}
+                </td>
+
+                <td>
+
+                    <div class="actions">
+
+                        <button
+                            class="btn btn-primary"
+                            onclick="editNews('${article.id}')">
+                            Edit
+                        </button>
+
+                        <button
+                            class="btn btn-warning"
+                            onclick="toggleNewsPublished('${article.id}',${article.is_published})">
+                            ${article.is_published ? "Unpublish" : "Publish"}
+                        </button>
+
+                        <button
+                            class="btn btn-danger"
+                            onclick="deleteNews('${article.id}')">
+                            Delete
+                        </button>
+
+                    </div>
+
+                </td>
+
+            </tr>
+
+        `).join("");
+}
+
+
+function filterNews(){
+
+    const search =
+        (
+            document.getElementById(
+                "news-search"
+            )?.value || ""
+        )
+        .toLowerCase()
+        .trim();
+
+
+    const filter =
+        document.getElementById(
+            "news-filter"
+        )?.value || "";
+
+
+    const filtered =
+        window.allNews.filter(article => {
+
+            const text =
+                [
+                    article.title,
+                    article.slug,
+                    article.category,
+                    article.excerpt,
+                    article.content
+                ]
+                .join(" ")
+                .toLowerCase();
+
+
+            const matchesSearch =
+                !search ||
+                text.includes(search);
+
+
+            const matchesFilter =
+                !filter ||
+                (
+                    filter === "published" &&
+                    article.is_published
+                ) ||
+                (
+                    filter === "draft" &&
+                    !article.is_published
+                );
+
+
+            return (
+                matchesSearch &&
+                matchesFilter
+            );
+        });
+
+
+    renderNews(filtered);
+}
+
+
+function openNewsForm(article=null){
+
+    document.getElementById(
+        "news-form-card"
+    ).style.display = "block";
+
+
+    document.getElementById(
+        "news-form-title"
+    ).textContent =
+        article
+        ? "Edit News"
+        : "Add News";
+
+
+    document.getElementById(
+        "news-id"
+    ).value =
+        article?.id || "";
+
+
+    document.getElementById(
+        "news-title"
+    ).value =
+        article?.title || "";
+
+
+    document.getElementById(
+        "news-slug"
+    ).value =
+        article?.slug || "";
+
+
+    document.getElementById(
+        "news-category"
+    ).value =
+        article?.category || "";
+
+
+    document.getElementById(
+        "news-image"
+    ).value =
+        article?.image_url || "";
+
+
+    document.getElementById(
+        "news-excerpt"
+    ).value =
+        article?.excerpt || "";
+
+
+    document.getElementById(
+        "news-content"
+    ).value =
+        article?.content || "";
+
+
+    document.getElementById(
+        "news-published"
+    ).checked =
+        article?.is_published || false;
+
+
+    clearFormMessage(
+        "news-form-message"
+    );
+
+
+    document.getElementById(
+        "news-form-card"
+    ).scrollIntoView({
+        behavior:"smooth"
+    });
+}
+
+
+function editNews(id){
+
+    const article =
+        window.allNews.find(
+            n => String(n.id) === String(id)
+        );
+
+
+    if(article){
+        openNewsForm(article);
+    }
+}
+
+
+function closeNewsForm(){
+
+    document.getElementById(
+        "news-form-card"
+    ).style.display = "none";
+
+
+    document.getElementById(
+        "news-form"
+    ).reset();
+
+
+    document.getElementById(
+        "news-id"
+    ).value = "";
+
+
+    clearFormMessage(
+        "news-form-message"
+    );
+}
+
+
+document.getElementById(
+    "news-form"
+).addEventListener(
+    "submit",
+    async function(event){
+
+        event.preventDefault();
+
+
+        const id =
+            document.getElementById(
+                "news-id"
+            ).value;
+
+
+        const title =
+            document.getElementById(
+                "news-title"
+            ).value.trim();
+
+
+        let slug =
+            document.getElementById(
+                "news-slug"
+            ).value.trim();
+
+
+        if(!slug){
+            slug = generateSlug(title);
+        }
+
+
+        const published =
+            document.getElementById(
+                "news-published"
+            ).checked;
+
+
+        const payload = {
+
+            title:title,
+
+            slug:slug,
+
+            excerpt:
+                document.getElementById(
+                    "news-excerpt"
+                ).value.trim(),
+
+            content:
+                document.getElementById(
+                    "news-content"
+                ).value.trim(),
+
+            image_url:
+                document.getElementById(
+                    "news-image"
+                ).value.trim(),
+
+            is_published:
+                published,
+
+            published_at:
+                published
+                ? new Date().toISOString()
+                : null
+
+        };
+
+
+        /*
+         * author_id is only added for a new article
+         * when an authenticated user exists.
+         */
+        if(
+            !id &&
+            window.currentUser?.id
+        ){
+
+            payload.author_id =
+                window.currentUser.id;
+        }
+
+
+        let error;
+
+
+        if(id){
+
+            ({
+                error
+            } =
+                await codeveraSupabase
+                    .from("news")
+                    .update(payload)
+                    .eq("id",id));
+
+        }else{
+
+            ({
+                error
+            } =
+                await codeveraSupabase
+                    .from("news")
+                    .insert(payload));
+
+        }
+
+
+        if(error){
+
+            showFormMessage(
+                "news-form-message",
+                error.message,
+                "error"
+            );
+
+            return;
+        }
+
+
+        showFormMessage(
+            "news-form-message",
+            "News saved successfully.",
+            "success"
+        );
+
+
+        await loadNews();
+        await loadStatistics();
+
+
+        setTimeout(
+            closeNewsForm,
+            700
+        );
+    }
+);
+
+
+async function toggleNewsPublished(id,current){
+
+    const newValue =
+        !current;
+
+
+    const {
+        error
+    } = await codeveraSupabase
+        .from("news")
+        .update({
+
+            is_published:newValue,
+
+            published_at:
+                newValue
+                ? new Date().toISOString()
+                : null
+
+        })
+        .eq("id",id);
+
+
+    if(error){
+
+        alert(error.message);
+        return;
+    }
+
+
+    await loadNews();
+    await loadStatistics();
+}
+
+
+async function deleteNews(id){
+
+    if(!confirm(
+        "Delete this news article?"
+    )){
+        return;
+    }
+
+
+    const {
+        error
+    } = await codeveraSupabase
+        .from("news")
+        .delete()
+        .eq("id",id);
+
+
+    if(error){
+
+        alert(
+            "Unable to delete news:\n" +
+            error.message
+        );
+
+        return;
+    }
+
+
+    await loadNews();
+    await loadStatistics();
+}
+
+
+/* =========================================================
+   MODAL
+========================================================= */
+
+function closeModal(){
+
+    document
+        .getElementById("details-modal")
+        .classList.remove("show");
+}
+
+
+document
+    .getElementById("details-modal")
+    .addEventListener(
+        "click",
+        function(event){
+
+            if(
+                event.target ===
+                this
+            ){
+                closeModal();
+            }
+
+        }
+    );
+
+
+/* =========================================================
+   INITIALIZE
+========================================================= */
+
+async function initializeDashboard(){
+
+    const user =
+        await checkAdmin();
+
+
+    if(!user){
+        return;
+    }
+
+
+    await Promise.all([
+
+        loadStatistics(),
+        loadMessages(),
+        loadCourses(),
+        loadRegistrations(),
+        loadServices(),
+        loadProjects(),
+        loadNews()
+
+    ]);
+
+}
+
+
+initializeDashboard();
+
+</script>
+
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+    const form = document.getElementById("service-form");
+
+    if (!form) {
+        console.log("SERVICE FORM NOT FOUND");
+        return;
+    }
+
+    console.log("NEW SERVICES HANDLER ACTIVE");
+
+    form.onsubmit = async function (event) {
+        event.preventDefault();
+
+        const id = document.getElementById("service-id").value;
+        const title = document.getElementById("service-title").value.trim();
+        const slugInput = document.getElementById("service-slug").value.trim();
+
+        const payload = {
+            title: title,
+            slug: slugInput || generateSlug(title),
+            description: document.getElementById("service-description").value.trim(),
+            icon: document.getElementById("service-icon").value.trim(),
+            image_url: document.getElementById("service-image").value.trim(),
+            is_active: document.getElementById("service-active").checked
+        };
+
+        console.log("SERVICE PAYLOAD:", payload);
+
+        let result;
+
+        if (id) {
+            result = await codeveraSupabase
+                .from("services")
+                .update(payload)
+                .eq("id", id);
+        } else {
+            result = await codeveraSupabase
+                .from("services")
+                .insert(payload);
+        }
+
+        console.log("SERVICE RESULT:", result);
+
+        if (result.error) {
+            alert("SERVICE ERROR: " + result.error.message);
+            return;
+        }
+
+        alert("Service saved successfully!");
+
+        await loadServices();
+        await loadStatistics();
+
+        if (typeof closeServiceForm === "function") {
+            closeServiceForm();
+        }
+    };
+});
+</script>
+
+</body>
+</html>
