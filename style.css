@@ -2932,37 +2932,33 @@ img {
 }
 
 
-
 /* =========================
-   MOBILE COURSE REGISTRATION
+   MOBILE FORM TEXT FIX
 ========================= */
 
-@media (max-width: 768px) {
+@media (max-width: 700px) {
 
-    #contact-form input,
-    #contact-form select,
-    #contact-form textarea {
-        background-color: #ffffff;
-        color: #222222;
-        border-color: #d1d5db;
+    .contact-form input,
+    .contact-form textarea,
+    .contact-form select,
+    .form-group input,
+    .form-group textarea,
+    .form-group select {
+        color: #111827 !important;
+        background-color: #ffffff !important;
+        -webkit-text-fill-color: #111827 !important;
+        caret-color: #111827 !important;
     }
 
-    #contact-form input::placeholder,
-    #contact-form textarea::placeholder {
-        color: #666666;
-        opacity: 1;
+    .contact-form input::placeholder,
+    .contact-form textarea::placeholder {
+        color: #6b7280 !important;
+        -webkit-text-fill-color: #6b7280 !important;
+        opacity: 1 !important;
     }
 
-    #contact-form select option {
-        background-color: #ffffff;
-        color: #222222;
-    }
-
-    #course-group {
-        background-color: transparent;
-    }
-
-    #course-group label {
-        color: inherit;
+    .form-group select option {
+        color: #111827 !important;
+        background-color: #ffffff !important;
     }
 }
