@@ -2930,3 +2930,39 @@ img {
 #registration-course option[value=""] {
     color: #777;
 }
+
+
+
+/* =========================
+   MOBILE COURSE REGISTRATION
+========================= */
+
+@media (max-width: 768px) {
+
+    #contact-form input,
+    #contact-form select,
+    #contact-form textarea {
+        background-color: #ffffff;
+        color: #222222;
+        border-color: #d1d5db;
+    }
+
+    #contact-form input::placeholder,
+    #contact-form textarea::placeholder {
+        color: #666666;
+        opacity: 1;
+    }
+
+    #contact-form select option {
+        background-color: #ffffff;
+        color: #222222;
+    }
+
+    #course-group {
+        background-color: transparent;
+    }
+
+    #course-group label {
+        color: inherit;
+    }
+}
