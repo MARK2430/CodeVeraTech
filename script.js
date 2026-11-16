@@ -1,1186 +1,2989 @@
 
-/* =========================================================
-   CODEVERA TECHNOLOGIES
-   MAIN JAVASCRIPT
-   ========================================================= */
+// ============================================================
+// CODEVERATECH JAVASCRIPT
+// ============================================================
 
-document.addEventListener("DOMContentLoaded", function () {
 
-    console.log("CodeVera JavaScript loaded.");
+// ============================================================
+// SUPABASE
+// ============================================================
 
-    /* =====================================================
-       SUPABASE
-       ===================================================== */
+const SUPABASE_URL =
+    "https://ugfrwkctmulxxprcuioz.supabase.co";
 
-    const SUPABASE_URL =
-        "https://ugfrwkctmulxxprcuioz.supabase.co";
+const SUPABASE_ANON_KEY =
+    "sb_publishable_egKPDjgXJIAxsTY5Qe_f9Q_L2nZ-vJ5";
 
-    const SUPABASE_ANON_KEY =
-        "sb_publishable_egKPDjgXJIAxsTY5Qe_f9Q_L2nZ-vJ5";
+const supabaseClient =
+    window.supabase.createClient(
+        SUPABASE_URL,
+        SUPABASE_ANON_KEY
+    );
 
-    let codeveraSupabase = null;
 
-    if (window.supabase) {
+// ============================================================
+// GLOBAL COURSE STORAGE
+// ============================================================
 
-        try {
+let allCourses = [];
 
-            codeveraSupabase =
-                window.supabase.createClient(
-                    SUPABASE_URL,
-                    SUPABASE_ANON_KEY
-                );
 
-            console.log("Supabase initialized successfully.");
+// ============================================================
+// DOM READY
+// ============================================================
 
-        } catch (error) {
+document.addEventListener(
+    "DOMContentLoaded",
+    function () {
 
-            console.error(
-                "Supabase initialization error:",
-                error
-            );
+        initializeNavigation();
 
-        }
+        initializeBackToTop();
 
-    } else {
+        initializeContactForm();
 
-        console.error(
-            "Supabase library was not loaded."
-        );
+        initializeCourseRegistration();
+
+        initializeCourseButtonEvents();
+
+        loadCourses();
+
+        loadNews();
+
+        setCurrentYear();
+
+        initializeScrollAnimation();
 
     }
+);
 
 
-    /* =====================================================
-       HEADER
-       ===================================================== */
+// ============================================================
+// NAVIGATION
+// ============================================================
+
+function initializeNavigation() {
 
     const header =
         document.getElementById("header");
 
-    if (header) {
-
-        window.addEventListener("scroll", function () {
-
-            header.classList.toggle(
-                "scrolled",
-                window.scrollY > 40
-            );
-
-        });
-
-    }
-
-
-    /* =====================================================
-       MOBILE MENU
-       ===================================================== */
+    const nav =
+        document.getElementById("nav");
 
     const menuToggle =
         document.getElementById("menu-toggle");
 
-    const nav =
-        document.getElementById("nav");
-
-    if (menuToggle && nav) {
-
-        menuToggle.addEventListener("click", function () {
-
-            nav.classList.toggle("open");
-
-            const icon =
-                menuToggle.querySelector("i");
-
-            if (icon) {
-
-                if (nav.classList.contains("open")) {
-
-                    icon.classList.remove("fa-bars");
-                    icon.classList.add("fa-xmark");
-
-                } else {
-
-                    icon.classList.remove("fa-xmark");
-                    icon.classList.add("fa-bars");
-
-                }
-
-            }
-
-        });
-
-    }
-
-
-    /* =====================================================
-       NAVIGATION LINKS
-       ===================================================== */
-
     const navLinks =
         document.querySelectorAll(".nav-link");
 
-    navLinks.forEach(function (link) {
 
-        link.addEventListener("click", function () {
+    // --------------------------------------------------------
+    // HEADER SCROLL
+    // --------------------------------------------------------
 
-            if (nav) {
-                nav.classList.remove("open");
+    window.addEventListener(
+        "scroll",
+        function () {
+
+            if (!header) {
+                return;
             }
 
-            if (menuToggle) {
+            if (window.scrollY > 50) {
 
-                const icon =
-                    menuToggle.querySelector("i");
+                header.classList.add(
+                    "scrolled"
+                );
 
-                if (icon) {
+            } else {
 
-                    icon.classList.remove("fa-xmark");
-                    icon.classList.add("fa-bars");
+                header.classList.remove(
+                    "scrolled"
+                );
+
+            }
+
+        }
+    );
+
+
+    // --------------------------------------------------------
+    // MOBILE MENU
+    // --------------------------------------------------------
+
+    if (menuToggle && nav) {
+
+        menuToggle.addEventListener(
+            "click",
+            function () {
+
+                nav.classList.toggle(
+                    "active"
+                );
+
+            }
+        );
+
+    }
+
+
+    // --------------------------------------------------------
+    // CLOSE MOBILE MENU
+    // --------------------------------------------------------
+
+    navLinks.forEach(
+        function (link) {
+
+            link.addEventListener(
+                "click",
+                function () {
+
+                    if (nav) {
+
+                        nav.classList.remove(
+                            "active"
+                        );
+
+                    }
+
+                }
+            );
+
+        }
+    );
+
+
+    // --------------------------------------------------------
+    // ACTIVE NAVIGATION
+    // --------------------------------------------------------
+
+    window.addEventListener(
+        "scroll",
+        function () {
+
+            const sections =
+                document.querySelectorAll(
+                    "section[id]"
+                );
+
+            let currentSection = "";
+
+
+            sections.forEach(
+                function (section) {
+
+                    const sectionTop =
+                        section.offsetTop - 150;
+
+                    const sectionHeight =
+                        section.offsetHeight;
+
+                    const sectionId =
+                        section.getAttribute(
+                            "id"
+                        );
+
+
+                    if (
+                        window.scrollY >= sectionTop &&
+                        window.scrollY <
+                            sectionTop + sectionHeight
+                    ) {
+
+                        currentSection =
+                            sectionId;
+
+                    }
+
+                }
+            );
+
+
+            navLinks.forEach(
+                function (link) {
+
+                    link.classList.remove(
+                        "active"
+                    );
+
+
+                    const href =
+                        link.getAttribute(
+                            "href"
+                        );
+
+
+                    if (
+                        href ===
+                        "#" + currentSection
+                    ) {
+
+                        link.classList.add(
+                            "active"
+                        );
+
+                    }
+
+                }
+            );
+
+        }
+    );
+
+}
+
+
+// ============================================================
+// BACK TO TOP
+// ============================================================
+
+function initializeBackToTop() {
+
+    const backToTop =
+        document.getElementById(
+            "back-to-top"
+        );
+
+
+    if (!backToTop) {
+        return;
+    }
+
+
+    window.addEventListener(
+        "scroll",
+        function () {
+
+            if (window.scrollY > 500) {
+
+                backToTop.classList.add(
+                    "show"
+                );
+
+            } else {
+
+                backToTop.classList.remove(
+                    "show"
+                );
+
+            }
+
+        }
+    );
+
+
+    backToTop.addEventListener(
+        "click",
+        function () {
+
+            window.scrollTo({
+
+                top: 0,
+
+                behavior: "smooth"
+
+            });
+
+        }
+    );
+
+}
+
+
+// ============================================================
+// HTML ESCAPE
+// ============================================================
+
+function escapeHTML(value) {
+
+    if (
+        value === null ||
+        value === undefined
+    ) {
+
+        return "";
+
+    }
+
+
+    return String(value)
+
+        .replace(
+            /&/g,
+            "&amp;"
+        )
+
+        .replace(
+            /</g,
+            "&lt;"
+        )
+
+        .replace(
+            />/g,
+            "&gt;"
+        )
+
+        .replace(
+            /"/g,
+            "&quot;"
+        )
+
+        .replace(
+            /'/g,
+            "&#039;"
+        );
+
+}
+
+
+// ============================================================
+// COURSE HELPERS
+// ============================================================
+
+function getCourseTitle(course) {
+
+    return (
+
+        course.title ||
+
+        course.name ||
+
+        course.course_name ||
+
+        "Untitled Course"
+
+    );
+
+}
+
+
+function getCourseDescription(course) {
+
+    return (
+
+        course.description ||
+
+        course.short_description ||
+
+        "Practical technology training from CodeVeraTech Academy."
+
+    );
+
+}
+
+
+function getCourseDuration(course) {
+
+    return (
+
+        course.duration ||
+
+        course.duration_weeks ||
+
+        "Flexible"
+
+    );
+
+}
+
+
+function getCoursePrice(course) {
+
+    if (
+
+        course.price !== null &&
+
+        course.price !== undefined &&
+
+        course.price !== ""
+
+    ) {
+
+        return course.price;
+
+    }
+
+
+    return "Contact us";
+
+}
+
+
+function getCourseCurrency(course) {
+
+    return course.currency || "SLE";
+
+}
+
+
+function getCourseImage(course) {
+
+    return (
+
+        course.image_url ||
+
+        course.image ||
+
+        course.thumbnail ||
+
+        ""
+
+    );
+
+}
+
+
+function getCourseCategory(course) {
+
+    return course.category || "Technology";
+
+}
+
+
+function getCourseInstructor(course) {
+
+    return (
+        course.instructor ||
+        "CodeVeraTech Academy"
+    );
+
+}
+
+
+function getCourseLevel(course) {
+
+    return (
+        course.level ||
+        "All Levels"
+    );
+
+}
+
+
+// ============================================================
+// LOAD FREE COURSE PREVIEW
+// ============================================================
+
+async function loadFreeCoursePreview(courseId) {
+
+    if (!courseId) {
+
+        return [];
+
+    }
+
+
+    try {
+
+        const {
+            data,
+            error
+        } = await supabaseClient
+
+            .from("course_lessons")
+
+            .select("*")
+
+            .eq(
+                "course_id",
+                courseId
+            )
+
+            .eq(
+                "is_free",
+                true
+            )
+
+            .order(
+                "lesson_order",
+                {
+                    ascending: true
+                }
+            );
+
+
+        if (error) {
+
+            console.error(
+                "Error loading course preview:",
+                error
+            );
+
+            return [];
+
+        }
+
+
+        return data || [];
+
+    } catch (error) {
+
+        console.error(
+            "Unexpected preview error:",
+            error
+        );
+
+        return [];
+
+    }
+
+}
+
+
+// ============================================================
+// CREATE COURSE DETAILS MODAL
+// ============================================================
+
+function createCourseDetailsModal() {
+
+    let modal =
+        document.getElementById(
+            "course-details-modal"
+        );
+
+
+    if (modal) {
+
+        return modal;
+
+    }
+
+
+    modal =
+        document.createElement(
+            "div"
+        );
+
+
+    modal.id =
+        "course-details-modal";
+
+
+    modal.className =
+        "course-details-modal";
+
+
+    // --------------------------------------------------------
+    // INLINE MODAL STYLING
+    // --------------------------------------------------------
+
+    modal.style.position = "fixed";
+
+    modal.style.top = "0";
+
+    modal.style.left = "0";
+
+    modal.style.width = "100%";
+
+    modal.style.height = "100%";
+
+    modal.style.backgroundColor =
+        "rgba(0,0,0,0.75)";
+
+    modal.style.zIndex =
+        "99999";
+
+    modal.style.display =
+        "flex";
+
+    modal.style.alignItems =
+        "center";
+
+    modal.style.justifyContent =
+        "center";
+
+    modal.style.padding =
+        "20px";
+
+    modal.style.boxSizing =
+        "border-box";
+
+    modal.style.visibility =
+        "hidden";
+
+    modal.style.opacity =
+        "0";
+
+    modal.style.pointerEvents =
+        "none";
+
+    modal.style.transition =
+        "opacity 0.25s ease";
+
+
+    // --------------------------------------------------------
+    // MODAL HTML
+    // --------------------------------------------------------
+
+    modal.innerHTML = `
+
+        <div
+            class="course-details-overlay"
+            style="
+                position:absolute;
+                inset:0;
+            ">
+        </div>
+
+
+        <div
+            class="course-details-box"
+            style="
+                position:relative;
+                z-index:2;
+                background:#ffffff;
+                width:100%;
+                max-width:850px;
+                max-height:90vh;
+                overflow-y:auto;
+                border-radius:16px;
+                padding:30px;
+                box-sizing:border-box;
+                box-shadow:0 20px 60px rgba(0,0,0,0.3);
+            ">
+
+
+            <button
+                type="button"
+                class="course-details-close"
+                aria-label="Close"
+                style="
+                    position:absolute;
+                    top:15px;
+                    right:15px;
+                    width:40px;
+                    height:40px;
+                    border:none;
+                    border-radius:50%;
+                    cursor:pointer;
+                    font-size:20px;
+                    z-index:5;
+                ">
+
+                <i class="fa-solid fa-xmark"></i>
+
+            </button>
+
+
+            <div
+                id="course-details-content"
+                class="course-details-content">
+
+            </div>
+
+
+        </div>
+
+    `;
+
+
+    document.body.appendChild(
+        modal
+    );
+
+
+    // --------------------------------------------------------
+    // OVERLAY CLOSE
+    // --------------------------------------------------------
+
+    const overlay =
+        modal.querySelector(
+            ".course-details-overlay"
+        );
+
+
+    if (overlay) {
+
+        overlay.addEventListener(
+            "click",
+            closeCourseDetails
+        );
+
+    }
+
+
+    // --------------------------------------------------------
+    // CLOSE BUTTON
+    // --------------------------------------------------------
+
+    const closeButton =
+        modal.querySelector(
+            ".course-details-close"
+        );
+
+
+    if (closeButton) {
+
+        closeButton.addEventListener(
+            "click",
+            closeCourseDetails
+        );
+
+    }
+
+
+    // --------------------------------------------------------
+    // ESCAPE KEY
+    // --------------------------------------------------------
+
+    document.addEventListener(
+        "keydown",
+        function (event) {
+
+            if (
+                event.key === "Escape" &&
+                modal.classList.contains(
+                    "active"
+                )
+            ) {
+
+                closeCourseDetails();
+
+            }
+
+        }
+    );
+
+
+    return modal;
+
+}
+
+
+// ============================================================
+// OPEN COURSE DETAILS
+// ============================================================
+
+async function openCourseDetails(course) {
+
+    if (!course) {
+
+        console.error(
+            "No course was supplied."
+        );
+
+        return;
+
+    }
+
+
+    console.log(
+        "Opening course:",
+        getCourseTitle(course)
+    );
+
+
+    const modal =
+        createCourseDetailsModal();
+
+
+    const content =
+        modal.querySelector(
+            "#course-details-content"
+        );
+
+
+    if (!content) {
+
+        console.error(
+            "Course details content container was not found."
+        );
+
+        return;
+
+    }
+
+
+    const title =
+        getCourseTitle(course);
+
+
+    const description =
+        getCourseDescription(course);
+
+
+    const duration =
+        getCourseDuration(course);
+
+
+    const price =
+        getCoursePrice(course);
+
+
+    const currency =
+        getCourseCurrency(course);
+
+
+    const image =
+        getCourseImage(course);
+
+
+    const category =
+        getCourseCategory(course);
+
+
+    const instructor =
+        getCourseInstructor(course);
+
+
+    const level =
+        getCourseLevel(course);
+
+
+    // --------------------------------------------------------
+    // LOADING
+    // --------------------------------------------------------
+
+    content.innerHTML = `
+
+        <div
+            style="
+                text-align:center;
+                padding:50px 20px;
+                color:#333;
+            ">
+
+            <i
+                class="fa-solid fa-spinner fa-spin"
+                style="
+                    font-size:35px;
+                    margin-bottom:15px;
+                ">
+            </i>
+
+            <p>
+                Loading course details...
+            </p>
+
+        </div>
+
+    `;
+
+
+    // --------------------------------------------------------
+    // SHOW MODAL
+    // --------------------------------------------------------
+
+    modal.classList.add(
+        "active"
+    );
+
+    modal.style.visibility =
+        "visible";
+
+    modal.style.opacity =
+        "1";
+
+    modal.style.pointerEvents =
+        "auto";
+
+
+    document.body.classList.add(
+        "course-modal-open"
+    );
+
+
+    document.body.style.overflow =
+        "hidden";
+
+
+    // --------------------------------------------------------
+    // LOAD FREE PREVIEW
+    // --------------------------------------------------------
+
+    const previewLessons =
+        await loadFreeCoursePreview(
+            course.id
+        );
+
+
+    // ========================================================
+    // COURSE IMAGE
+    // ========================================================
+
+    let imageHTML = "";
+
+
+    if (image) {
+
+        imageHTML = `
+
+            <div
+                class="course-details-image"
+                style="
+                    margin-bottom:20px;
+                    text-align:center;
+                ">
+
+                <img
+                    src="${escapeHTML(image)}"
+                    alt="${escapeHTML(title)}"
+                    style="
+                        max-width:100%;
+                        width:100%;
+                        max-height:320px;
+                        object-fit:cover;
+                        border-radius:12px;
+                    ">
+
+            </div>
+
+        `;
+
+    }
+
+
+    // ========================================================
+    // FREE PREVIEW
+    // ========================================================
+
+    let previewHTML = "";
+
+
+    if (previewLessons.length > 0) {
+
+        previewHTML = `
+
+            <div
+                style="
+                    margin-top:30px;
+                    padding-top:25px;
+                    border-top:1px solid #ddd;
+                ">
+
+                <h3
+                    style="
+                        color:#222;
+                        margin-bottom:15px;
+                    ">
+
+                    <i
+                        class="fa-solid fa-unlock">
+                    </i>
+
+                    Free Preview
+
+                </h3>
+
+
+                <p
+                    style="
+                        color:#555;
+                        margin-bottom:20px;
+                    ">
+
+                    Start learning with these
+                    free introductory lessons
+                    before enrolling.
+
+                </p>
+
+
+                ${previewLessons.map(
+                    function (lesson) {
+
+                        return `
+
+                            <div
+                                style="
+                                    background:#f7f7f7;
+                                    border-radius:10px;
+                                    padding:20px;
+                                    margin-bottom:15px;
+                                ">
+
+                                <h4
+                                    style="
+                                        color:#222;
+                                        margin-bottom:10px;
+                                    ">
+
+                                    ${escapeHTML(
+                                        lesson.title ||
+                                        "Lesson"
+                                    )}
+
+                                </h4>
+
+
+                                ${
+                                    lesson.description
+                                        ? `
+                                            <p
+                                                style="
+                                                    color:#555;
+                                                    margin-bottom:10px;
+                                                ">
+
+                                                ${escapeHTML(
+                                                    lesson.description
+                                                )}
+
+                                            </p>
+                                        `
+                                        : ""
+                                }
+
+
+                                ${
+                                    lesson.content
+                                        ? `
+                                            <p
+                                                style="
+                                                    color:#333;
+                                                    line-height:1.7;
+                                                    white-space:pre-line;
+                                                ">
+
+                                                ${escapeHTML(
+                                                    lesson.content
+                                                )}
+
+                                            </p>
+                                        `
+                                        : ""
+                                }
+
+
+                                ${
+                                    lesson.youtube_url
+                                        ? `
+
+                                            <a
+                                                href="${escapeHTML(
+                                                    lesson.youtube_url
+                                                )}"
+                                                target="_blank"
+                                                rel="noopener noreferrer"
+                                                class="btn btn-secondary"
+                                                style="
+                                                    display:inline-block;
+                                                    margin-top:10px;
+                                                ">
+
+                                                <i
+                                                    class="fa-brands fa-youtube">
+                                                </i>
+
+                                                Watch Preview
+
+                                            </a>
+
+                                        `
+                                        : ""
+                                }
+
+                            </div>
+
+                        `;
+
+                    }
+                ).join("")}
+
+            </div>
+
+        `;
+
+    } else {
+
+        previewHTML = `
+
+            <div
+                style="
+                    margin-top:30px;
+                    padding:20px;
+                    background:#f7f7f7;
+                    border-radius:10px;
+                ">
+
+                <h3
+                    style="
+                        color:#222;
+                    ">
+
+                    <i
+                        class="fa-solid fa-unlock">
+                    </i>
+
+                    Free Preview
+
+                </h3>
+
+
+                <p
+                    style="
+                        color:#555;
+                    ">
+
+                    A free preview for this
+                    course will be available soon.
+
+                </p>
+
+            </div>
+
+        `;
+
+    }
+
+
+    // ========================================================
+    // SYLLABUS
+    // ========================================================
+
+    let syllabusHTML = "";
+
+
+    if (
+        course.syllabus &&
+        String(course.syllabus).trim() !== ""
+    ) {
+
+        const syllabusItems =
+            String(course.syllabus)
+
+                .split("\n")
+
+                .map(
+                    function (item) {
+                        return item.trim();
+                    }
+                )
+
+                .filter(
+                    function (item) {
+                        return item !== "";
+                    }
+                );
+
+
+        syllabusHTML = `
+
+            <div
+                style="
+                    margin-top:30px;
+                    padding-top:25px;
+                    border-top:1px solid #ddd;
+                ">
+
+                <h3
+                    style="
+                        color:#222;
+                    ">
+
+                    <i
+                        class="fa-solid fa-list-check">
+                    </i>
+
+                    Course Syllabus
+
+                </h3>
+
+
+                <div
+                    style="
+                        margin-top:15px;
+                    ">
+
+                    ${syllabusItems.map(
+                        function (item) {
+
+                            return `
+
+                                <div
+                                    style="
+                                        display:flex;
+                                        gap:10px;
+                                        padding:10px 0;
+                                        border-bottom:1px solid #eee;
+                                        color:#333;
+                                    ">
+
+                                    <i
+                                        class="fa-solid fa-circle-check"
+                                        style="
+                                            margin-top:4px;
+                                        ">
+                                    </i>
+
+
+                                    <span>
+
+                                        ${escapeHTML(
+                                            item
+                                        )}
+
+                                    </span>
+
+                                </div>
+
+                            `;
+
+                        }
+                    ).join("")}
+
+                </div>
+
+            </div>
+
+        `;
+
+    }
+
+
+    // ========================================================
+    // PREMIUM CONTENT
+    // ========================================================
+
+    const premiumHTML = `
+
+        <div
+            style="
+                margin-top:30px;
+                padding:25px;
+                background:#f1f5f9;
+                border-radius:12px;
+                border:1px solid #ddd;
+            ">
+
+            <h3
+                style="
+                    color:#222;
+                ">
+
+                <i
+                    class="fa-solid fa-lock">
+                </i>
+
+                Premium Course Content
+
+            </h3>
+
+
+            <p
+                style="
+                    color:#555;
+                    line-height:1.7;
+                    margin-top:10px;
+                ">
+
+                Full lessons, detailed notes,
+                exercises, practical assignments,
+                projects and other premium
+                learning materials are available
+                after enrollment.
+
+            </p>
+
+
+            <div
+                style="
+                    margin-top:15px;
+                    color:#555;
+                ">
+
+                <i
+                    class="fa-solid fa-lock">
+                </i>
+
+                Premium lessons are locked.
+
+            </div>
+
+        </div>
+
+    `;
+
+
+    // ========================================================
+    // YOUTUBE COURSE VIDEO
+    // ========================================================
+
+    let youtubeHTML = "";
+
+
+    if (
+        course.youtube_url &&
+        String(course.youtube_url).trim() !== ""
+    ) {
+
+        youtubeHTML = `
+
+            <div
+                style="
+                    margin-top:30px;
+                    padding-top:25px;
+                    border-top:1px solid #ddd;
+                ">
+
+                <h3
+                    style="
+                        color:#222;
+                    ">
+
+                    <i
+                        class="fa-brands fa-youtube">
+                    </i>
+
+                    Course Video
+
+                </h3>
+
+
+                <a
+                    href="${escapeHTML(
+                        course.youtube_url
+                    )}"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    class="btn btn-secondary"
+                    style="
+                        display:inline-block;
+                        margin-top:15px;
+                    ">
+
+                    <i
+                        class="fa-brands fa-youtube">
+                    </i>
+
+                    Watch on YouTube
+
+                </a>
+
+            </div>
+
+        `;
+
+    }
+
+
+    // ========================================================
+    // FINAL COURSE DETAILS
+    // ========================================================
+
+    content.innerHTML = `
+
+        ${imageHTML}
+
+
+        <div
+            class="course-details-body">
+
+
+            <span
+                class="course-category"
+                style="
+                    display:inline-block;
+                    margin-bottom:10px;
+                    color:#007bff !important;
+                ">
+
+                ${escapeHTML(category)}
+
+            </span>
+
+
+            <h2
+                style="
+                    color:#222 !important;
+                    margin-top:5px;
+                    margin-bottom:15px;
+                ">
+
+                ${escapeHTML(title)}
+
+            </h2>
+
+
+            <div
+                class="course-details-meta"
+                style="
+                    display:flex;
+                    flex-wrap:wrap;
+                    gap:20px;
+                    margin-bottom:25px;
+                    color:#333 !important;
+                ">
+
+
+                <span>
+
+                    <i
+                        class="fa-regular fa-clock">
+                    </i>
+
+                    ${escapeHTML(duration)}
+
+                </span>
+
+
+                <span>
+
+                    <i
+                        class="fa-solid fa-tag">
+                    </i>
+
+                    ${escapeHTML(price)}
+                    ${escapeHTML(currency)}
+
+                </span>
+
+
+                <span>
+
+                    <i
+                        class="fa-solid fa-signal">
+                    </i>
+
+                    ${escapeHTML(level)}
+
+                </span>
+
+
+            </div>
+
+
+            <div
+                style="
+                    margin-bottom:25px;
+                ">
+
+                <p
+                    style="
+                        color:#333 !important;
+                        line-height:1.7;
+                    ">
+
+                    ${escapeHTML(description)}
+
+                </p>
+
+            </div>
+
+
+            <div
+                style="
+                    display:grid;
+                    grid-template-columns:
+                        repeat(auto-fit,minmax(180px,1fr));
+                    gap:15px;
+                    margin-bottom:25px;
+                ">
+
+
+                <div
+                    style="
+                        padding:15px;
+                        background:#f7f7f7;
+                        border-radius:10px;
+                    ">
+
+                    <strong
+                        style="
+                            color:#222;
+                        ">
+
+                        Instructor
+
+                    </strong>
+
+
+                    <p
+                        style="
+                            color:#555;
+                            margin-top:5px;
+                        ">
+
+                        ${escapeHTML(
+                            instructor
+                        )}
+
+                    </p>
+
+                </div>
+
+
+                <div
+                    style="
+                        padding:15px;
+                        background:#f7f7f7;
+                        border-radius:10px;
+                    ">
+
+                    <strong
+                        style="
+                            color:#222;
+                        ">
+
+                        Duration
+
+                    </strong>
+
+
+                    <p
+                        style="
+                            color:#555;
+                            margin-top:5px;
+                        ">
+
+                        ${escapeHTML(
+                            duration
+                        )}
+
+                    </p>
+
+                </div>
+
+
+                <div
+                    style="
+                        padding:15px;
+                        background:#f7f7f7;
+                        border-radius:10px;
+                    ">
+
+                    <strong
+                        style="
+                            color:#222;
+                        ">
+
+                        Course Fee
+
+                    </strong>
+
+
+                    <p
+                        style="
+                            color:#555;
+                            margin-top:5px;
+                        ">
+
+                        ${escapeHTML(price)}
+                        ${escapeHTML(currency)}
+
+                    </p>
+
+                </div>
+
+
+            </div>
+
+
+            ${previewHTML}
+
+
+            ${syllabusHTML}
+
+
+            ${youtubeHTML}
+
+
+            ${premiumHTML}
+
+
+            <div
+                class="course-details-actions"
+                style="
+                    margin-top:30px;
+                    padding-top:25px;
+                    border-top:1px solid #ddd;
+                ">
+
+
+                <button
+                    type="button"
+                    class="btn btn-primary"
+                    id="course-details-register">
+
+                    <i
+                        class="fa-solid fa-user-plus">
+                    </i>
+
+                    Register for Course
+
+                </button>
+
+
+            </div>
+
+
+        </div>
+
+    `;
+
+
+    // ========================================================
+    // REGISTER BUTTON
+    // ========================================================
+
+    const registerButton =
+        modal.querySelector(
+            "#course-details-register"
+        );
+
+
+    if (registerButton) {
+
+        registerButton.addEventListener(
+            "click",
+            function () {
+
+                closeCourseDetails();
+
+                openCourseRegistration(
+                    course
+                );
+
+            }
+        );
+
+    }
+
+}
+
+
+// ============================================================
+// CLOSE COURSE DETAILS
+// ============================================================
+
+function closeCourseDetails() {
+
+    const modal =
+        document.getElementById(
+            "course-details-modal"
+        );
+
+
+    if (!modal) {
+
+        return;
+
+    }
+
+
+    modal.classList.remove(
+        "active"
+    );
+
+
+    modal.style.visibility =
+        "hidden";
+
+
+    modal.style.opacity =
+        "0";
+
+
+    modal.style.pointerEvents =
+        "none";
+
+
+    document.body.classList.remove(
+        "course-modal-open"
+    );
+
+
+    document.body.style.overflow =
+        "";
+
+}
+
+
+// ============================================================
+// COURSE BUTTON EVENTS
+// ONE LISTENER FOR THE WHOLE COURSE AREA
+// ============================================================
+
+function initializeCourseButtonEvents() {
+
+    const publicCourses =
+        document.getElementById(
+            "public-courses"
+        );
+
+
+    if (!publicCourses) {
+
+        return;
+
+    }
+
+
+    publicCourses.addEventListener(
+        "click",
+        function (event) {
+
+
+            // ------------------------------------------------
+            // VIEW COURSE
+            // ------------------------------------------------
+
+            const viewButton =
+                event.target.closest(
+                    ".course-view-btn"
+                );
+
+
+            if (viewButton) {
+
+                event.preventDefault();
+
+                event.stopPropagation();
+
+
+                const courseId =
+                    viewButton.getAttribute(
+                        "data-course-id"
+                    );
+
+
+                const course =
+                    allCourses.find(
+                        function (item) {
+
+                            return String(
+                                item.id
+                            ) === String(
+                                courseId
+                            );
+
+                        }
+                    );
+
+
+                if (course) {
+
+                    openCourseDetails(
+                        course
+                    );
+
+                } else {
+
+                    console.error(
+                        "Course not found:",
+                        courseId
+                    );
+
+                }
+
+
+                return;
+
+            }
+
+
+            // ------------------------------------------------
+            // REGISTER COURSE
+            // ------------------------------------------------
+
+            const registerButton =
+                event.target.closest(
+                    ".course-register-btn"
+                );
+
+
+            if (registerButton) {
+
+                event.preventDefault();
+
+                event.stopPropagation();
+
+
+                const courseId =
+                    registerButton.getAttribute(
+                        "data-course-id"
+                    );
+
+
+                const course =
+                    allCourses.find(
+                        function (item) {
+
+                            return String(
+                                item.id
+                            ) === String(
+                                courseId
+                            );
+
+                        }
+                    );
+
+
+                if (course) {
+
+                    openCourseRegistration(
+                        course
+                    );
+
+                } else {
+
+                    console.error(
+                        "Course not found:",
+                        courseId
+                    );
 
                 }
 
             }
 
-        });
-
-    });
-
-
-    /* =====================================================
-       ACTIVE NAVIGATION
-       ===================================================== */
-
-    const sections =
-        document.querySelectorAll("section[id]");
-
-    window.addEventListener("scroll", function () {
-
-        let currentSection = "";
-
-        sections.forEach(function (section) {
-
-            const sectionTop =
-                section.offsetTop - 150;
-
-            const sectionHeight =
-                section.offsetHeight;
-
-            if (
-                window.scrollY >= sectionTop &&
-                window.scrollY <
-                sectionTop + sectionHeight
-            ) {
-
-                currentSection =
-                    section.id;
-
-            }
-
-        });
-
-        navLinks.forEach(function (link) {
-
-            link.classList.remove("active");
-
-            if (
-                link.getAttribute("href") ===
-                "#" + currentSection
-            ) {
-
-                link.classList.add("active");
-
-            }
-
-        });
-
-    });
-
-
-    /* =====================================================
-       BACK TO TOP
-       ===================================================== */
-
-    const backToTop =
-        document.getElementById("back-to-top");
-
-    if (backToTop) {
-
-        window.addEventListener("scroll", function () {
-
-            backToTop.classList.toggle(
-                "show",
-                window.scrollY > 500
-            );
-
-        });
-
-        backToTop.addEventListener("click", function () {
-
-            window.scrollTo({
-                top: 0,
-                behavior: "smooth"
-            });
-
-        });
-
-    }
-
-
-    /* =====================================================
-       HELPERS
-       ===================================================== */
-
-    function escapeHTML(value) {
-
-        if (
-            value === null ||
-            value === undefined
-        ) {
-            return "";
         }
+    );
 
-        return String(value)
-            .replace(/&/g, "&amp;")
-            .replace(/</g, "&lt;")
-            .replace(/>/g, "&gt;")
-            .replace(/"/g, "&quot;")
-            .replace(/'/g, "&#039;");
-
-    }
+}
 
 
-    function getCourseTitle(course) {
+// ============================================================
+// LOAD COURSES
+// ============================================================
 
-        return (
-            course.title ||
-            course.name ||
-            course.course_name ||
-            "Untitled Course"
-        );
-
-    }
-
-
-    function getCourseDescription(course) {
-
-        return (
-            course.description ||
-            course.details ||
-            course.summary ||
-            "Practical technology training designed to build real-world digital skills."
-        );
-
-    }
-
-
-    function getCourseDuration(course) {
-
-        return (
-            course.duration ||
-            course.course_duration ||
-            "Flexible"
-        );
-
-    }
-
-
-    function getCoursePrice(course) {
-
-        if (
-            course.price !== null &&
-            course.price !== undefined &&
-            course.price !== ""
-        ) {
-
-            return "Le " + course.price;
-
-        }
-
-        if (
-            course.amount !== null &&
-            course.amount !== undefined &&
-            course.amount !== ""
-        ) {
-
-            return "Le " + course.amount;
-
-        }
-
-        return "Contact us";
-
-    }
-
-
-    function getCourseImage(course) {
-
-        return (
-            course.image_url ||
-            course.image ||
-            course.thumbnail ||
-            ""
-        );
-
-    }
-
-
-    /* =====================================================
-       COURSE ELEMENTS
-       ===================================================== */
+async function loadCourses() {
 
     const publicCourses =
-        document.getElementById("public-courses");
-
-    const registrationContainer =
         document.getElementById(
-            "course-registration-container"
+            "public-courses"
         );
 
-    const registrationForm =
-        document.getElementById(
-            "course-registration-form"
-        );
-
-    const registrationName =
-        document.getElementById(
-            "registration-name"
-        );
-
-    const registrationEmail =
-        document.getElementById(
-            "registration-email"
-        );
-
-    const registrationPhone =
-        document.getElementById(
-            "registration-phone"
-        );
 
     const registrationCourse =
         document.getElementById(
             "registration-course"
         );
 
-    const registrationMessage =
-        document.getElementById(
-            "course-registration-message"
+
+    if (!publicCourses) {
+
+        console.error(
+            "Course container #public-courses was not found."
         );
 
-    const registrationSubmit =
-        document.getElementById(
-            "course-registration-submit"
-        );
+        return;
+
+    }
 
 
-    /* =====================================================
-       CONTACT ELEMENTS
-       ===================================================== */
+    try {
 
-    const contactForm =
-        document.getElementById("contact-form");
+        const {
+            data: courses,
+            error
+        } = await supabaseClient
 
-    const formMessage =
-        document.getElementById("form-message");
+            .from("courses")
 
+            .select("*")
 
-    /* =====================================================
-       LOAD COURSES
-       ===================================================== */
-
-    async function loadCourses() {
-
-        if (!publicCourses) {
-
-            console.error(
-                "ERROR: #public-courses was not found."
+            .order(
+                "created_at",
+                {
+                    ascending: false
+                }
             );
 
-            return;
 
-        }
+        if (error) {
 
-        if (!codeveraSupabase) {
+            console.error(
+                "Error loading courses:",
+                error
+            );
+
 
             publicCourses.innerHTML = `
-                <div class="course-loading">
-                    Course system is unavailable.
+
+                <div
+                    class="course-error">
+
+                    <i
+                        class="fa-solid fa-circle-exclamation">
+                    </i>
+
+
+                    <p>
+
+                        Unable to load courses
+                        at the moment.
+
+                    </p>
+
                 </div>
+
             `;
 
             return;
 
         }
 
-        publicCourses.innerHTML = `
-            <div class="course-loading">
-                <i class="fa-solid fa-spinner fa-spin"></i>
-                Loading courses...
-            </div>
-        `;
+
+        allCourses =
+            courses || [];
 
 
-        try {
+        // ====================================================
+        // REGISTRATION DROPDOWN
+        // ====================================================
 
-            const result =
-                await codeveraSupabase
-                    .from("courses")
-                    .select("*");
+        if (registrationCourse) {
 
+            registrationCourse.innerHTML = `
 
-            const data =
-                result.data;
+                <option value="">
 
-            const error =
-                result.error;
+                    Select a course
 
+                </option>
 
-            if (error) {
-
-                console.error(
-                    "COURSES DATABASE ERROR:",
-                    error
-                );
-
-                publicCourses.innerHTML = `
-                    <div class="course-loading">
-                        Unable to load courses right now.
-                    </div>
-                `;
-
-                return;
-
-            }
+            `;
 
 
-            console.log(
-                "COURSES FROM SUPABASE:",
-                data
-            );
-
-
-            let courses =
-                Array.isArray(data)
-                    ? data
-                    : [];
-
-
-            /*
-             * Only remove courses when is_active
-             * actually exists and is false.
-             */
-
-            courses =
-                courses.filter(function (course) {
-
-                    if (
-                        Object.prototype.hasOwnProperty.call(
-                            course,
-                            "is_active"
-                        )
-                    ) {
-
-                        return course.is_active !== false;
-
-                    }
-
-                    return true;
-
-                });
-
-
-            /*
-             * Sort alphabetically.
-             */
-
-            courses.sort(function (a, b) {
-
-                return getCourseTitle(a)
-                    .localeCompare(
-                        getCourseTitle(b)
-                    );
-
-            });
-
-
-            /* =================================================
-               NO COURSES
-               ================================================= */
-
-            if (courses.length === 0) {
-
-                publicCourses.innerHTML = `
-                    <div class="course-loading">
-                        No courses are available yet.
-                    </div>
-                `;
-
-                if (registrationCourse) {
-
-                    registrationCourse.innerHTML = `
-                        <option value="">
-                            No courses available
-                        </option>
-                    `;
-
-                }
-
-                return;
-
-            }
-
-
-            /* =================================================
-               REGISTRATION DROPDOWN
-               ================================================= */
-
-            if (registrationCourse) {
-
-                registrationCourse.innerHTML = `
-                    <option value="">
-                        Select a course
-                    </option>
-                `;
-
-                courses.forEach(function (course) {
-
-                    if (
-                        course.id === null ||
-                        course.id === undefined
-                    ) {
-                        return;
-                    }
+            allCourses.forEach(
+                function (course) {
 
                     const option =
-                        document.createElement("option");
+                        document.createElement(
+                            "option"
+                        );
+
 
                     option.value =
-                        String(course.id);
+                        course.id;
+
 
                     option.textContent =
-                        getCourseTitle(course);
+                        getCourseTitle(
+                            course
+                        );
+
 
                     registrationCourse.appendChild(
                         option
                     );
 
-                });
+                }
+            );
 
-            }
-
-
-            /* =================================================
-               DISPLAY PUBLIC COURSES
-               ================================================= */
-
-            publicCourses.innerHTML = "";
+        }
 
 
-            courses.forEach(function (course) {
+        // ====================================================
+        // NO COURSES
+        // ====================================================
+
+        if (!allCourses.length) {
+
+            publicCourses.innerHTML = `
+
+                <div
+                    class="course-empty">
+
+                    <i
+                        class="fa-solid fa-book-open">
+                    </i>
+
+
+                    <h3>
+
+                        No courses available yet
+
+                    </h3>
+
+
+                    <p>
+
+                        New courses will be
+                        added soon.
+
+                    </p>
+
+                </div>
+
+            `;
+
+            return;
+
+        }
+
+
+        // ====================================================
+        // DISPLAY COURSES
+        // ====================================================
+
+        publicCourses.innerHTML =
+            "";
+
+
+        allCourses.forEach(
+            function (course) {
+
 
                 const title =
-                    getCourseTitle(course);
+                    getCourseTitle(
+                        course
+                    );
+
 
                 const description =
-                    getCourseDescription(course);
+                    getCourseDescription(
+                        course
+                    );
+
 
                 const duration =
-                    getCourseDuration(course);
+                    getCourseDuration(
+                        course
+                    );
+
 
                 const price =
-                    getCoursePrice(course);
+                    getCoursePrice(
+                        course
+                    );
+
 
                 const image =
-                    getCourseImage(course);
+                    getCourseImage(
+                        course
+                    );
+
 
                 const category =
-                    course.category ||
-                    "CodeVera Academy";
+                    getCourseCategory(
+                        course
+                    );
 
 
                 const card =
-                    document.createElement("article");
+                    document.createElement(
+                        "article"
+                    );
+
 
                 card.className =
                     "course-card";
 
 
-                let imageHTML = "";
+                // ------------------------------------------------
+                // IMAGE
+                // ------------------------------------------------
+
+                let imageHTML =
+                    "";
 
 
                 if (image) {
 
                     imageHTML = `
-                        <div class="course-image">
+
+                        <div
+                            class="course-image">
+
                             <img
                                 src="${escapeHTML(image)}"
-                                alt="${escapeHTML(title)}"
-                                loading="lazy"
-                            >
+                                alt="${escapeHTML(title)}">
+
                         </div>
+
+                    `;
+
+                } else {
+
+                    imageHTML = `
+
+                        <div
+                            class="course-image-placeholder">
+
+                            <i
+                                class="fa-solid fa-graduation-cap">
+                            </i>
+
+                        </div>
+
                     `;
 
                 }
 
 
+                // ------------------------------------------------
+                // CARD
+                // ------------------------------------------------
+
                 card.innerHTML = `
 
                     ${imageHTML}
 
-                    <div class="course-content">
 
-                        <div class="course-category">
-                            ${escapeHTML(category)}
-                        </div>
+                    <div
+                        class="course-content">
 
-                        <h3 class="course-title">
-                            ${escapeHTML(title)}
+
+                        <span
+                            class="course-category">
+
+                            ${escapeHTML(
+                                category
+                            )}
+
+                        </span>
+
+
+                        <h3>
+
+                            ${escapeHTML(
+                                title
+                            )}
+
                         </h3>
 
-                        <p class="course-description">
-                            ${escapeHTML(description)}
+
+                        <p>
+
+                            ${escapeHTML(
+                                description
+                            )}
+
                         </p>
 
-                        <div class="course-meta">
 
-                            <span class="course-duration">
-                                <i class="fa-regular fa-clock"></i>
-                                ${escapeHTML(duration)}
+                        <div
+                            class="course-meta">
+
+
+                            <span>
+
+                                <i
+                                    class="fa-regular fa-clock">
+                                </i>
+
+                                ${escapeHTML(
+                                    duration
+                                )}
+
                             </span>
 
-                            <span class="course-price">
-                                ${escapeHTML(price)}
+
+                            <span
+                                class="course-price">
+
+                                ${escapeHTML(
+                                    price
+                                )}
+
                             </span>
+
 
                         </div>
 
-                        <button
-                            type="button"
-                            class="btn btn-primary course-register-btn"
-                            data-course-id="${escapeHTML(course.id)}"
-                        >
-                            <i class="fa-solid fa-user-plus"></i>
-                            Register for Course
-                        </button>
+
+                        <div
+                            class="course-actions">
+
+
+                            <button
+                                type="button"
+                                class="btn btn-secondary course-view-btn"
+                                data-course-id="${escapeHTML(
+                                    course.id
+                                )}">
+
+                                <i
+                                    class="fa-solid fa-book-open">
+                                </i>
+
+                                View Course
+
+                            </button>
+
+
+                            <button
+                                type="button"
+                                class="btn btn-primary course-register-btn"
+                                data-course-id="${escapeHTML(
+                                    course.id
+                                )}">
+
+                                <i
+                                    class="fa-solid fa-user-plus">
+                                </i>
+
+                                Register
+
+                            </button>
+
+
+                        </div>
+
 
                     </div>
+
                 `;
 
 
-                publicCourses.appendChild(card);
+                publicCourses.appendChild(
+                    card
+                );
+
+            }
+        );
+
+
+        console.log(
+            "CodeVeraTech courses loaded:",
+            allCourses.length
+        );
+
+    } catch (error) {
+
+        console.error(
+            "Unexpected course loading error:",
+            error
+        );
+
+
+        publicCourses.innerHTML = `
+
+            <div
+                class="course-error">
+
+                <i
+                    class="fa-solid fa-circle-exclamation">
+                </i>
+
+
+                <p>
+
+                    Something went wrong
+                    while loading courses.
+
+                </p>
+
+            </div>
+
+        `;
+
+    }
+
+}
+
+
+// ============================================================
+// OPEN COURSE REGISTRATION
+// ============================================================
+
+function openCourseRegistration(course) {
+
+    const container =
+        document.getElementById(
+            "course-registration-container"
+        );
+
+
+    const registrationCourse =
+        document.getElementById(
+            "registration-course"
+        );
+
+
+    if (!container) {
+
+        console.error(
+            "Course registration container not found."
+        );
+
+        return;
+
+    }
+
+
+    container.style.display =
+        "block";
+
+
+    if (
+
+        registrationCourse &&
+
+        course &&
+
+        course.id !== undefined &&
+
+        course.id !== null
+
+    ) {
+
+        registrationCourse.value =
+            course.id;
+
+    }
+
+
+    setTimeout(
+        function () {
+
+            container.scrollIntoView({
+
+                behavior: "smooth",
+
+                block: "start"
 
             });
 
+        },
+        100
+    );
 
-            console.log(
-                "COURSES DISPLAYED:",
-                courses.length
-            );
-
-        } catch (error) {
-
-            console.error(
-                "COURSE LOADING ERROR:",
-                error
-            );
-
-            publicCourses.innerHTML = `
-                <div class="course-loading">
-                    Unable to load courses right now.
-                </div>
-            `;
-
-        }
-
-    }
+}
 
 
-    /* =====================================================
-       COURSE REGISTER BUTTON
-       ===================================================== */
+// ============================================================
+// COURSE REGISTRATION FORM
+// ============================================================
 
-    if (publicCourses) {
+function initializeCourseRegistration() {
 
-        publicCourses.addEventListener(
-            "click",
-            function (event) {
-
-                const button =
-                    event.target.closest(
-                        ".course-register-btn"
-                    );
-
-                if (!button) {
-                    return;
-                }
-
-                event.preventDefault();
-                event.stopPropagation();
-
-
-                const courseId =
-                    button.getAttribute(
-                        "data-course-id"
-                    );
-
-
-                console.log(
-                    "REGISTER COURSE:",
-                    courseId
-                );
-
-
-                if (registrationCourse) {
-
-                    registrationCourse.value =
-                        courseId;
-
-                }
-
-
-                if (registrationMessage) {
-
-                    registrationMessage.textContent = "";
-
-                }
-
-
-                if (registrationContainer) {
-
-                    registrationContainer.style.display =
-                        "block";
-
-
-                    registrationContainer.scrollIntoView({
-                        behavior: "smooth",
-                        block: "center"
-                    });
-
-                }
-
-            }
+    const form =
+        document.getElementById(
+            "course-registration-form"
         );
 
+
+    if (!form) {
+
+        return;
+
     }
 
 
-    /* =====================================================
-       COURSE REGISTRATION
-       ===================================================== */
+    form.addEventListener(
+        "submit",
+        async function (event) {
 
-    if (registrationForm) {
-
-        registrationForm.addEventListener(
-            "submit",
-            async function (event) {
-
-                event.preventDefault();
-                event.stopPropagation();
+            event.preventDefault();
 
 
-                console.log(
-                    "COURSE REGISTRATION STARTED"
+            const nameElement =
+                document.getElementById(
+                    "registration-name"
                 );
 
 
-                const name =
-                    registrationName
-                        ? registrationName.value.trim()
-                        : "";
-
-                const email =
-                    registrationEmail
-                        ? registrationEmail.value.trim()
-                        : "";
-
-                const phone =
-                    registrationPhone
-                        ? registrationPhone.value.trim()
-                        : "";
-
-                const courseId =
-                    registrationCourse
-                        ? registrationCourse.value
-                        : "";
+            const emailElement =
+                document.getElementById(
+                    "registration-email"
+                );
 
 
-                if (
-                    !name ||
-                    !email ||
-                    !phone ||
-                    !courseId
-                ) {
+            const phoneElement =
+                document.getElementById(
+                    "registration-phone"
+                );
 
-                    if (registrationMessage) {
 
-                        registrationMessage.textContent =
-                            "Please complete all required fields.";
+            const courseElement =
+                document.getElementById(
+                    "registration-course"
+                );
 
-                        registrationMessage.style.color =
-                            "#ff7272";
 
-                    }
+            const message =
+                document.getElementById(
+                    "course-registration-message"
+                );
 
-                    return;
+
+            const submitButton =
+                document.getElementById(
+                    "course-registration-submit"
+                );
+
+
+            if (
+                !nameElement ||
+                !emailElement ||
+                !phoneElement ||
+                !courseElement
+            ) {
+
+                console.error(
+                    "Course registration form fields are missing."
+                );
+
+                return;
+
+            }
+
+
+            const name =
+                nameElement.value.trim();
+
+
+            const email =
+                emailElement.value.trim();
+
+
+            const phone =
+                phoneElement.value.trim();
+
+
+            const courseId =
+                courseElement.value;
+
+
+            // ------------------------------------------------
+            // VALIDATION
+            // ------------------------------------------------
+
+            if (
+                !name ||
+                !email ||
+                !phone ||
+                !courseId
+            ) {
+
+                if (message) {
+
+                    message.innerHTML = `
+
+                        <p
+                            style="color:red;">
+
+                            Please complete all
+                            required fields.
+
+                        </p>
+
+                    `;
 
                 }
 
+                return;
 
-                if (!codeveraSupabase) {
-
-                    if (registrationMessage) {
-
-                        registrationMessage.textContent =
-                            "Registration system is unavailable.";
-
-                        registrationMessage.style.color =
-                            "#ff7272";
-
-                    }
-
-                    return;
-
-                }
+            }
 
 
-                if (registrationSubmit) {
+            // ------------------------------------------------
+            // DISABLE BUTTON
+            // ------------------------------------------------
 
-                    registrationSubmit.disabled =
-                        true;
+            if (submitButton) {
 
-                    registrationSubmit.innerHTML =
-                        '<i class="fa-solid fa-spinner fa-spin"></i> Registering...';
-
-                }
-
-
-                try {
-
-                    const result =
-                        await codeveraSupabase
-                            .from("course_registrations")
-                            .insert({
-                                full_name: name,
-                                email: email,
-                                phone: phone,
-                                course_id: courseId,
-                                status: "pending"
-                            });
+                submitButton.disabled =
+                    true;
 
 
-                    if (result.error) {
+                submitButton.innerHTML = `
 
-                        console.error(
-                            "REGISTRATION DATABASE ERROR:",
-                            result.error
-                        );
+                    <i
+                        class="fa-solid fa-spinner fa-spin">
+                    </i>
 
-                        throw result.error;
+                    Registering...
 
-                    }
+                `;
+
+            }
 
 
-                    console.log(
-                        "COURSE REGISTRATION SAVED"
+            try {
+
+                const selectedCourse =
+                    allCourses.find(
+                        function (course) {
+
+                            return String(
+                                course.id
+                            ) === String(
+                                courseId
+                            );
+
+                        }
                     );
 
 
-                    if (registrationMessage) {
+                const courseTitle =
+                    selectedCourse
 
-                        registrationMessage.textContent =
-                            "Your course registration was submitted successfully. CodeVera will contact you soon.";
+                        ? getCourseTitle(
+                            selectedCourse
+                        )
 
-                        registrationMessage.style.color =
-                            "#00df9a";
-
-                    }
-
-
-                    registrationForm.reset();
+                        : "Selected Course";
 
 
-                } catch (error) {
+                // ------------------------------------------------
+                // INSERT REGISTRATION
+                // ------------------------------------------------
+
+                const {
+                    error
+                } = await supabaseClient
+
+                    .from(
+                        "course_registrations"
+                    )
+
+                    .insert([
+                        {
+
+                            full_name:
+                                name,
+
+                            email:
+                                email,
+
+                            phone:
+                                phone,
+
+                            course_id:
+                                courseId
+
+                        }
+                    ]);
+
+
+                if (error) {
 
                     console.error(
-                        "COURSE REGISTRATION ERROR:",
+                        "Course registration error:",
                         error
                     );
 
-
-                    if (registrationMessage) {
-
-                        registrationMessage.textContent =
-                            error.message ||
-                            "Unable to submit registration.";
-
-                        registrationMessage.style.color =
-                            "#ff7272";
-
-                    }
-
-                } finally {
-
-                    if (registrationSubmit) {
-
-                        registrationSubmit.disabled =
-                            false;
-
-                        registrationSubmit.innerHTML =
-                            '<i class="fa-solid fa-user-plus"></i> Register for Course';
-
-                    }
+                    throw error;
 
                 }
 
-            }
-        );
 
-    }
+                // ------------------------------------------------
+                // SUCCESS
+                // ------------------------------------------------
+
+                if (message) {
+
+                    message.innerHTML = `
+
+                        <p
+                            style="color:green;">
+
+                            Registration submitted
+                            successfully for
+
+                            <strong>
+
+                                ${escapeHTML(
+                                    courseTitle
+                                )}
+
+                            </strong>.
+
+                        </p>
+
+                    `;
+
+                }
 
 
-    /* =====================================================
-       CONTACT FORM
-       ===================================================== */
-
-    if (contactForm) {
-
-        contactForm.addEventListener(
-            "submit",
-            async function (event) {
-
-                /*
-                 * THIS MUST HAPPEN FIRST.
-                 *
-                 * The browser must NEVER perform its
-                 * normal form submission.
-                 */
-
-                event.preventDefault();
-                event.stopImmediatePropagation();
+                form.reset();
 
 
-                console.log(
-                    "CONTACT FORM SUBMISSION STARTED"
+                // ------------------------------------------------
+                // RESTORE COURSE DROPDOWN
+                // ------------------------------------------------
+
+                if (courseElement) {
+
+                    courseElement.value =
+                        "";
+
+                }
+
+            } catch (error) {
+
+                console.error(
+                    "Course registration error:",
+                    error
                 );
 
 
-                const submitButton =
-                    contactForm.querySelector(
-                        'button[type="submit"]'
-                    );
+                if (message) {
 
+                    message.innerHTML = `
 
-                const name =
-                    document.getElementById("name")
-                        ?.value.trim() || "";
+                        <p
+                            style="color:red;">
 
+                            Registration could not
+                            be submitted.
+                            Please try again.
 
-                const phone =
-                    document.getElementById("phone")
-                        ?.value.trim() || "";
+                        </p>
 
-
-                const email =
-                    document.getElementById("email")
-                        ?.value.trim() || "";
-
-
-                const organization =
-                    document.getElementById("organization")
-                        ?.value.trim() || "";
-
-
-                const subject =
-                    document.getElementById("subject")
-                        ?.value.trim() || "";
-
-
-                const service =
-                    document.getElementById("service")
-                        ?.value || "";
-
-
-                const message =
-                    document.getElementById("message")
-                        ?.value.trim() || "";
-
-
-                /* =================================================
-                   VALIDATION
-                   ================================================= */
-
-                if (
-                    !name ||
-                    !phone ||
-                    !email ||
-                    !subject ||
-                    !service ||
-                    !message
-                ) {
-
-                    if (formMessage) {
-
-                        formMessage.textContent =
-                            "Please fill in all required fields.";
-
-                        formMessage.style.color =
-                            "#ff7272";
-
-                    }
-
-                    return;
+                    `;
 
                 }
 
-
-                if (!codeveraSupabase) {
-
-                    if (formMessage) {
-
-                        formMessage.textContent =
-                            "Contact system is unavailable. Please try again.";
-
-                        formMessage.style.color =
-                            "#ff7272";
-
-                    }
-
-                    return;
-
-                }
-
+            } finally {
 
                 if (submitButton) {
 
                     submitButton.disabled =
-                        true;
-
-                    submitButton.innerHTML =
-                        '<i class="fa-solid fa-spinner fa-spin"></i> Sending...';
-
-                }
+                        false;
 
 
-                try {
+                    submitButton.innerHTML = `
 
-                    /*
-                     * IMPORTANT:
-                     *
-                     * We are NOT sending "subject"
-                     * because your current contact_messages
-                     * table was previously working without it.
-                     */
+                        <i
+                            class="fa-solid fa-user-plus">
+                        </i>
 
-                    const result =
-                        await codeveraSupabase
-                            .from("contact_messages")
-                            .insert({
-                                name: name,
-                                phone: phone,
-                                email: email,
-                                organization:
-                                    organization || null,
-                                service:
-                                    service || null,
-                                message: message
-                            });
+                        Register for Course
 
-
-                    if (result.error) {
-
-                        console.error(
-                            "CONTACT DATABASE ERROR:",
-                            result.error
-                        );
-
-                        throw result.error;
-
-                    }
-
-
-                    console.log(
-                        "CONTACT MESSAGE SAVED"
-                    );
-
-
-                    if (formMessage) {
-
-                        formMessage.textContent =
-                            "Thank you! Your inquiry has been sent successfully. CodeVera will get back to you soon.";
-
-                        formMessage.style.color =
-                            "#00df9a";
-
-                    }
-
-
-                    contactForm.reset();
-
-
-                } catch (error) {
-
-                    console.error(
-                        "CONTACT FORM ERROR:",
-                        error
-                    );
-
-
-                    if (formMessage) {
-
-                        formMessage.textContent =
-                            error.message ||
-                            "Unable to submit your inquiry.";
-
-                        formMessage.style.color =
-                            "#ff7272";
-
-                    }
-
-                } finally {
-
-                    if (submitButton) {
-
-                        submitButton.disabled =
-                            false;
-
-                        submitButton.innerHTML =
-                            '<i class="fa-solid fa-paper-plane"></i> Submit Inquiry';
-
-                    }
+                    `;
 
                 }
 
-            },
-            true
+            }
+
+        }
+    );
+
+}
+
+
+// ============================================================
+// CONTACT FORM
+// ============================================================
+
+function initializeContactForm() {
+
+    const form =
+        document.getElementById(
+            "contact-form"
         );
 
-    } else {
 
-        console.error(
-            "ERROR: #contact-form was not found."
-        );
+    if (!form) {
+
+        return;
 
     }
 
 
-    /* =====================================================
-       NEWS
-       ===================================================== */
+    form.addEventListener(
+        "submit",
+        async function (event) {
+
+            event.preventDefault();
+
+
+            const nameElement =
+                document.getElementById(
+                    "name"
+                );
+
+
+            const phoneElement =
+                document.getElementById(
+                    "phone"
+                );
+
+
+            const emailElement =
+                document.getElementById(
+                    "email"
+                );
+
+
+            const organizationElement =
+                document.getElementById(
+                    "organization"
+                );
+
+
+            const serviceElement =
+                document.getElementById(
+                    "service"
+                );
+
+
+            const messageElement =
+                document.getElementById(
+                    "message"
+                );
+
+
+            const formMessage =
+                document.getElementById(
+                    "form-message"
+                );
+
+
+            const submitButton =
+                form.querySelector(
+                    'button[type="submit"]'
+                );
+
+
+            if (
+                !nameElement ||
+                !phoneElement ||
+                !emailElement ||
+                !serviceElement ||
+                !messageElement
+            ) {
+
+                console.error(
+                    "Contact form fields are missing."
+                );
+
+                return;
+
+            }
+
+
+            const name =
+                nameElement.value.trim();
+
+
+            const phone =
+                phoneElement.value.trim();
+
+
+            const email =
+                emailElement.value.trim();
+
+
+            const organization =
+                organizationElement
+                    ? organizationElement.value.trim()
+                    : "";
+
+
+            const service =
+                serviceElement.value;
+
+
+            const message =
+                messageElement.value.trim();
+
+
+            // ------------------------------------------------
+            // VALIDATION
+            // ------------------------------------------------
+
+            if (
+                !name ||
+                !phone ||
+                !email ||
+                !service ||
+                !message
+            ) {
+
+                if (formMessage) {
+
+                    formMessage.textContent =
+                        "Please complete all required fields.";
+
+                    formMessage.style.color =
+                        "red";
+
+                }
+
+                return;
+
+            }
+
+
+            // ------------------------------------------------
+            // DISABLE BUTTON
+            // ------------------------------------------------
+
+            if (submitButton) {
+
+                submitButton.disabled =
+                    true;
+
+
+                submitButton.innerHTML = `
+
+                    <i
+                        class="fa-solid fa-spinner fa-spin">
+                    </i>
+
+                    Sending...
+
+                `;
+
+            }
+
+
+            try {
+
+                // ------------------------------------------------
+                // INSERT CONTACT MESSAGE
+                // ------------------------------------------------
+
+                const {
+                    error
+                } = await supabaseClient
+
+                    .from(
+                        "contact_messages"
+                    )
+
+                    .insert([
+                        {
+
+                            name:
+                                name,
+
+                            phone:
+                                phone,
+
+                            email:
+                                email,
+
+                            organization:
+                                organization,
+
+                            service:
+                                service,
+
+                            message:
+                                message
+
+                        }
+                    ]);
+
+
+                if (error) {
+
+                    console.error(
+                        "Contact form error:",
+                        error
+                    );
+
+                    throw error;
+
+                }
+
+
+                // ------------------------------------------------
+                // SUCCESS
+                // ------------------------------------------------
+
+                if (formMessage) {
+
+                    formMessage.textContent =
+                        "Your enquiry was received successfully. We will get back to you soon.";
+
+                    formMessage.style.color =
+                        "green";
+
+                }
+
+
+                form.reset();
+
+            } catch (error) {
+
+                console.error(
+                    "Contact form error:",
+                    error
+                );
+
+
+                if (formMessage) {
+
+                    formMessage.textContent =
+                        "Unable to send your enquiry. Please try again.";
+
+                    formMessage.style.color =
+                        "red";
+
+                }
+
+            } finally {
+
+                if (submitButton) {
+
+                    submitButton.disabled =
+                        false;
+
+
+                    submitButton.innerHTML = `
+
+                        <i
+                            class="fa-solid fa-paper-plane">
+                        </i>
+
+                        Submit Inquiry
+
+                    `;
+
+                }
+
+            }
+
+        }
+    );
+
+}
+
+
+// ============================================================
+// LOAD NEWS
+// ============================================================
+
+async function loadNews() {
 
     const publicNews =
-        document.getElementById("public-news");
+        document.getElementById(
+            "public-news"
+        );
 
 
-    async function loadNews() {
+    if (!publicNews) {
 
-        if (!publicNews) {
-            return;
-        }
+        return;
+
+    }
 
 
-        if (!codeveraSupabase) {
+    try {
+
+        const {
+            data: news,
+            error
+        } = await supabaseClient
+
+            .from("news")
+
+            .select("*")
+
+            .order(
+                "created_at",
+                {
+                    ascending: false
+                }
+            );
+
+
+        if (error) {
+
+            console.error(
+                "Error loading news:",
+                error
+            );
+
 
             publicNews.innerHTML = `
-                <div class="news-loading">
-                    Unable to load news.
+
+                <div
+                    class="news-error">
+
+                    Unable to load news
+                    at the moment.
+
                 </div>
+
             `;
 
             return;
@@ -1188,102 +2991,65 @@ document.addEventListener("DOMContentLoaded", function () {
         }
 
 
-        try {
+        // --------------------------------------------------------
+        // NO NEWS
+        // --------------------------------------------------------
 
-            const result =
-                await codeveraSupabase
-                    .from("news")
-                    .select("*");
+        if (
+            !news ||
+            !news.length
+        ) {
 
+            publicNews.innerHTML = `
 
-            const data =
-                result.data;
+                <div
+                    class="news-empty">
 
-            const error =
-                result.error;
-
-
-            if (error) {
-
-                console.error(
-                    "NEWS DATABASE ERROR:",
-                    error
-                );
-
-                publicNews.innerHTML = `
-                    <div class="news-loading">
-                        Unable to load news.
-                    </div>
-                `;
-
-                return;
-
-            }
+                    <i
+                        class="fa-regular fa-newspaper">
+                    </i>
 
 
-            let news =
-                Array.isArray(data)
-                    ? data
-                    : [];
+                    <h3>
+
+                        No news available yet
+
+                    </h3>
+
+                </div>
+
+            `;
+
+            return;
+
+        }
 
 
-            /*
-             * If a published column exists,
-             * hide items explicitly marked false.
-             */
-
-            news =
-                news.filter(function (item) {
-
-                    if (
-                        Object.prototype.hasOwnProperty.call(
-                            item,
-                            "published"
-                        )
-                    ) {
-
-                        return item.published !== false;
-
-                    }
-
-                    return true;
-
-                });
+        publicNews.innerHTML =
+            "";
 
 
-            if (news.length === 0) {
+        // --------------------------------------------------------
+        // DISPLAY NEWS
+        // --------------------------------------------------------
 
-                publicNews.innerHTML = `
-                    <div class="news-loading">
-                        No news available yet.
-                    </div>
-                `;
-
-                return;
-
-            }
-
-
-            publicNews.innerHTML = "";
-
-
-            news.forEach(function (item) {
+        news.forEach(
+            function (item) {
 
                 const title =
                     item.title ||
-                    "CodeVera Technologies Update";
+                    "CodeVeraTech Update";
 
 
-                const description =
-                    item.excerpt ||
-                    item.description ||
+                const content =
                     item.content ||
+                    item.description ||
                     "";
 
 
                 const category =
                     item.category ||
-                    "CodeVera Update";
+                    "News";
 
 
                 const image =
@@ -1292,136 +3058,167 @@ document.addEventListener("DOMContentLoaded", function () {
                     "";
 
 
-                const card =
-                    document.createElement("article");
+                const article =
+                    document.createElement(
+                        "article"
+                    );
 
-                card.className =
+
+                article.className =
                     "news-card";
 
 
-                let imageHTML = "";
+                let imageHTML =
+                    "";
 
 
                 if (image) {
 
                     imageHTML = `
-                        <div class="news-image">
+
+                        <div
+                            class="news-image">
+
                             <img
                                 src="${escapeHTML(image)}"
-                                alt="${escapeHTML(title)}"
-                                loading="lazy"
-                            >
+                                alt="${escapeHTML(title)}">
+
                         </div>
+
                     `;
 
                 }
 
 
-                card.innerHTML = `
+                article.innerHTML = `
 
                     ${imageHTML}
 
-                    <div class="news-content">
 
-                        <span class="news-category">
-                            ${escapeHTML(category)}
+                    <div
+                        class="news-content">
+
+
+                        <span
+                            class="news-category">
+
+                            ${escapeHTML(
+                                category
+                            )}
+
                         </span>
 
+
                         <h3>
-                            ${escapeHTML(title)}
+
+                            ${escapeHTML(
+                                title
+                            )}
+
                         </h3>
 
+
                         <p>
+
                             ${escapeHTML(
-                                String(description).substring(
-                                    0,
-                                    180
-                                )
+                                content
                             )}
+
                         </p>
 
+
                     </div>
+
                 `;
 
 
-                publicNews.appendChild(card);
+                publicNews.appendChild(
+                    article
+                );
 
-            });
+            }
+        );
 
+    } catch (error) {
 
-            console.log(
-                "NEWS LOADED:",
-                news.length
-            );
-
-
-        } catch (error) {
-
-            console.error(
-                "NEWS ERROR:",
-                error
-            );
-
-            publicNews.innerHTML = `
-                <div class="news-loading">
-                    Unable to load news.
-                </div>
-            `;
-
-        }
-
-    }
-
-
-    /* =====================================================
-       START DATABASE LOADING
-       ===================================================== */
-
-    loadCourses();
-
-    loadNews();
-
-
-    /* =====================================================
-       CURRENT YEAR
-       ===================================================== */
-
-    const yearElement =
-        document.getElementById("year");
-
-    if (yearElement) {
-
-        yearElement.textContent =
-            new Date().getFullYear();
-
-    }
-
-
-    /* =====================================================
-       SCROLL ANIMATIONS
-       ===================================================== */
-
-    const animatedElements =
-        document.querySelectorAll(
-            ".service-card, .about-card, .process-item, .project-card"
+        console.error(
+            "Unexpected news error:",
+            error
         );
 
 
-    if ("IntersectionObserver" in window) {
+        publicNews.innerHTML = `
 
-        const observer =
-            new IntersectionObserver(
-                function (entries) {
+            <div
+                class="news-error">
 
-                    entries.forEach(function (entry) {
+                Unable to load news
+                at the moment.
 
-                        if (entry.isIntersecting) {
+            </div>
 
-                            entry.target.style.opacity =
-                                "1";
+        `;
 
-                            entry.target.style.transform =
-                                "translateY(0)";
+    }
+
+}
+
+
+// ============================================================
+// CURRENT YEAR
+// ============================================================
+
+function setCurrentYear() {
+
+    const yearElements =
+        document.querySelectorAll(
+            "#current-year, .current-year"
+        );
+
+
+    yearElements.forEach(
+        function (element) {
+
+            element.textContent =
+                new Date().getFullYear();
+
+        }
+    );
+
+}
+
+
+// ============================================================
+// SCROLL ANIMATION
+// ============================================================
+
+function initializeScrollAnimation() {
+
+    if (
+        !("IntersectionObserver" in window)
+    ) {
+
+        return;
+
+    }
+
+
+    const observer =
+        new IntersectionObserver(
+
+            function (entries) {
+
+                entries.forEach(
+                    function (entry) {
+
+                        if (
+                            entry.isIntersecting
+                        ) {
+
+                            entry.target.classList.add(
+                                "visible"
+                            );
+
 
                             observer.unobserve(
                                 entry.target
@@ -1429,39 +3226,38 @@ document.addEventListener("DOMContentLoaded", function () {
 
                         }
 
-                    });
+                    }
+                );
 
-                },
-                {
-                    threshold: 0.1
-                }
+            },
+
+            {
+                threshold: 0.1
+            }
+
+        );
+
+
+    const animatedElements =
+        document.querySelectorAll(
+            ".service-card, .project-card, .about-card, .process-item"
+        );
+
+
+    animatedElements.forEach(
+        function (element) {
+
+            observer.observe(
+                element
             );
 
-
-        animatedElements.forEach(function (element) {
-
-            element.style.opacity = "0";
-
-            element.style.transform =
-                "translateY(20px)";
-
-            element.style.transition =
-                "opacity 0.6s ease, transform 0.6s ease";
-
-            observer.observe(element);
-
-        });
-
-    }
-
-
-    /* =====================================================
-       FINISHED
-       ===================================================== */
-
-    console.log(
-        "CodeVera Technologies initialized successfully."
+        }
     );
 
-});
+}
+
+
+// ============================================================
+// END OF CODEVERATECH JAVASCRIPT
+// ============================================================
 
