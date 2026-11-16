@@ -51,6 +51,8 @@ document.addEventListener(
         loadCourses();
 
         loadNews();
+         
+        loadVideos();
 
         setCurrentYear();
 
@@ -3415,3 +3417,57 @@ function initializeScrollAnimation() {
 // ============================================================
 // END OF CODEVERATECH JAVASCRIPT
 // ============================================================
+
+// ============================================================
+// LOAD VIDEO LIBRARY
+// ============================================================
+
+function loadVideos() {
+
+    const videoContainer = document.getElementById("public-videos");
+
+    if (!videoContainer) return;
+
+   const videos = [
+    {
+        id: "MWgn9wR1S1o",
+        title: "Easy Way to Code",
+        category: "Programming",
+        description: "Explore this programming video from our video library."
+    },
+    {
+        id: "a_iQb1lnAEQ",
+        title: "Learn HTML & CSS – Full Course",
+        category: "Web Development",
+        description: "Learn HTML and CSS from scratch through practical projects."
+    }
+];
+
+    videoContainer.innerHTML = videos.map(video => `
+
+        <div class="video-card">
+
+            <div class="video-thumbnail">
+
+                <iframe
+                    src="https://www.youtube-nocookie.com/embed/${video.id}"
+                    title="${video.title}"
+                    loading="lazy"
+                    allowfullscreen>
+                </iframe>
+
+            </div>
+
+            <div class="video-content">
+
+                <h3>${video.title}</h3>
+
+                <p>${video.description}</p>
+
+            </div>
+
+        </div>
+
+    `).join("");
+
+}
