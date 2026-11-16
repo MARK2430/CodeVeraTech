@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+!DOCTYPE html>
 
 <html lang="en">
 
@@ -104,15 +104,41 @@
 
         <div class="nav-actions">
 
-            <button
-                class="language-btn"
-                type="button">
+            <div class="language-selector">
+                <button
+                    class="language-btn"
+                    id="language-btn"
+                    type="button"
+                    aria-haspopup="true"
+                    aria-expanded="false"
+                    aria-label="Choose website language">
 
-                <i class="fa-solid fa-globe"></i>
-                <span>EN</span>
-                <i class="fa-solid fa-chevron-down"></i>
+                    <i class="fa-solid fa-globe"></i>
+                    <span id="current-language">EN</span>
+                    <i class="fa-solid fa-chevron-down"></i>
+                </button>
 
-            </button>
+                <div class="language-menu" id="language-menu" role="menu" hidden>
+                    <button type="button" class="language-option" data-language="en" data-label="EN">🇬🇧 English</button>
+                    <button type="button" class="language-option" data-language="fr" data-label="FR">🇫🇷 French</button>
+                    <button type="button" class="language-option" data-language="es" data-label="ES">🇪🇸 Spanish</button>
+                    <button type="button" class="language-option" data-language="pt" data-label="PT">🇵🇹 Portuguese</button>
+                    <button type="button" class="language-option" data-language="ar" data-label="AR">🇸🇦 Arabic</button>
+                    <button type="button" class="language-option" data-language="zh-CN" data-label="中文">🇨🇳 Chinese (Simplified)</button>
+                    <button type="button" class="language-option" data-language="de" data-label="DE">🇩🇪 German</button>
+                    <button type="button" class="language-option" data-language="sw" data-label="SW">🌍 Swahili</button>
+                    <button type="button" class="language-option" data-language="ha" data-label="HA">🌍 Hausa</button>
+                    <button type="button" class="language-option" data-language="yo" data-label="YO">🌍 Yoruba</button>
+                    <button type="button" class="language-option" data-language="ja" data-label="日本語">🇯🇵 Japanese</button>
+                    <button type="button" class="language-option" data-language="hi" data-label="HI">🇮🇳 Hindi</button>
+                    <button type="button" class="language-option" data-language="it" data-label="IT">🇮🇹 Italian</button>
+                    <button type="button" class="language-option" data-language="ru" data-label="RU">🇷🇺 Russian</button>
+                    <button type="button" class="language-option language-option-unavailable" data-language="kri" data-label="KRI">🇸🇱 Krio <small>Coming soon</small></button>
+                </div>
+            </div>
+
+            <!-- Google Translate runs the selected page translation. -->
+            <div id="google_translate_element" aria-hidden="true"></div>
 
             <a
                 href="#contact"

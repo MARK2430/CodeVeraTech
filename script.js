@@ -38,6 +38,8 @@ document.addEventListener(
 
         initializeNavigation();
 
+        initializeLanguageSelector();
+
         initializeBackToTop();
 
         initializeContactForm();
@@ -118,7 +120,7 @@ function initializeNavigation() {
             function () {
 
                 nav.classList.toggle(
-                    "active"
+                    "open"
                 );
 
             }
@@ -230,6 +232,159 @@ function initializeNavigation() {
         }
     );
 
+}
+
+
+// ============================================================
+// LANGUAGE SELECTOR
+// ============================================================
+
+function initializeLanguageSelector() {
+
+    const button = document.getElementById("language-btn");
+    const menu = document.getElementById("language-menu");
+    const currentLanguage = document.getElementById("current-language");
+    const options = document.querySelectorAll(".language-option");
+
+    if (!button || !menu) {
+        return;
+    }
+
+    const supportedLanguages = [
+        "en", "fr", "es", "pt", "ar", "zh-CN", "de",
+        "sw", "ha", "yo", "ja", "hi", "it", "ru"
+    ];
+
+    // Load Google's translation widget once. Krio is listed in the menu,
+    // but is not included because Google Translate does not currently
+    // provide a reliable Krio translation option.
+    window.googleTranslateElementInit = function () {
+        if (
+            window.google &&
+            window.google.translate &&
+            window.google.translate.TranslateElement
+        ) {
+            new window.google.translate.TranslateElement(
+                {
+                    pageLanguage: "en",
+                    includedLanguages: supportedLanguages.join(","),
+                    autoDisplay: false
+                },
+                "google_translate_element"
+            );
+        }
+    };
+
+    if (!document.getElementById("google-translate-script")) {
+        const script = document.createElement("script");
+        script.id = "google-translate-script";
+        script.src = "https://translate.google.com/translate_a/element.js?cb=googleTranslateElementInit";
+        script.async = true;
+        script.onerror = function () {
+            console.warn("The translation service could not be loaded.");
+        };
+        document.head.appendChild(script);
+    }
+
+    function openMenu() {
+        menu.hidden = false;
+        button.setAttribute("aria-expanded", "true");
+    }
+
+    function closeMenu() {
+        menu.hidden = true;
+        button.setAttribute("aria-expanded", "false");
+    }
+
+    button.addEventListener("click", function (event) {
+        event.stopPropagation();
+        if (menu.hidden) {
+            openMenu();
+        } else {
+            closeMenu();
+        }
+    });
+
+    document.addEventListener("click", function (event) {
+        if (!event.target.closest(".language-selector")) {
+            closeMenu();
+        }
+    });
+
+    document.addEventListener("keydown", function (event) {
+        if (event.key === "Escape") {
+            closeMenu();
+        }
+    });
+
+    function applyLanguage(languageCode, label) {
+        if (languageCode === "kri") {
+            window.alert("Krio translation is being prepared. Please choose another language for now.");
+            closeMenu();
+            return;
+        }
+
+        if (!supportedLanguages.includes(languageCode)) {
+            return;
+        }
+
+        currentLanguage.textContent = label;
+        localStorage.setItem("codeveratech-language", languageCode);
+
+        // Arabic reads right-to-left; restore left-to-right for other languages.
+        document.documentElement.dir =
+            languageCode === "ar" ? "rtl" : "ltr";
+
+        closeMenu();
+
+        // The Google Translate dropdown is created asynchronously.
+        let attempts = 0;
+        const selectLanguage = window.setInterval(function () {
+            const translateSelect = document.querySelector(".goog-te-combo");
+            attempts += 1;
+
+            if (translateSelect) {
+                translateSelect.value = languageCode;
+                translateSelect.dispatchEvent(new Event("change"));
+                window.clearInterval(selectLanguage);
+            } else if (attempts >= 30) {
+                window.clearInterval(selectLanguage);
+                if (languageCode !== "en") {
+                    window.alert("The translation service is still loading. Please try again in a moment.");
+                }
+            }
+        }, 300);
+    }
+
+    options.forEach(function (option) {
+        option.addEventListener("click", function () {
+            applyLanguage(
+                option.dataset.language,
+                option.dataset.label
+            );
+        });
+    });
+
+    // Restore the visitor's previous language choice.
+    const savedLanguage = localStorage.getItem("codeveratech-language");
+    if (savedLanguage && supportedLanguages.includes(savedLanguage)) {
+        const savedOption = document.querySelector(
+            '.language-option[data-language="' + savedLanguage + '"]'
+        );
+        if (savedOption) {
+            currentLanguage.textContent = savedOption.dataset.label;
+            document.documentElement.dir =
+                savedLanguage === "ar" ? "rtl" : "ltr";
+            // Allow the translation widget time to initialize.
+            window.setTimeout(function () {
+                const translateSelect = document.querySelector(".goog-te-combo");
+                if (translateSelect) {
+                    translateSelect.value = savedLanguage;
+                    translateSelect.dispatchEvent(new Event("change"));
+                }
+            }, 1800);
+        }
+    }
 }
 
 
@@ -3260,4 +3415,3 @@ function initializeScrollAnimation() {
 // ============================================================
 // END OF CODEVERATECH JAVASCRIPT
 // ============================================================
-
