@@ -123,20 +123,24 @@ img {
 
 
 /* ================= NAVIGATION ================= */
+/* ================= NAVIGATION ================= */
 
 .nav {
     display: flex;
     align-items: center;
+    justify-content: center;
+    gap: 13px;
 
-    gap: 28px;
+    flex: 1;
+    min-width: 0;
 }
 
 .nav-link {
     position: relative;
+    white-space: nowrap;
 
     color: #d8e5fa;
-
-    font-size: 14px;
+    font-size: 12px;
     font-weight: 600;
 
     transition: var(--transition);
@@ -151,7 +155,6 @@ img {
     content: "";
 
     position: absolute;
-
     left: 0;
     bottom: -29px;
 
@@ -160,8 +163,6 @@ img {
 
     background: var(--blue);
 }
-
-
 /* ================= HEADER ACTIONS ================= */
 
 .nav-actions {
